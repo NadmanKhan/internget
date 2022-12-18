@@ -6,6 +6,8 @@ require_once($_SERVER['DOCUMENT_ROOT'] . '/../config/db.php');
 class SelectQueryBuilder
 {
     private $mysqli;
+    private $built;
+    private $executed;
     private $table;
     private $columns;
     private $where;
@@ -21,6 +23,7 @@ class SelectQueryBuilder
     public function __construct()
     {
         global $mysqli;
+        $executed = false;
         $this->mysqli = $mysqli;
         $this->columns = '*';
         $this->table = '';
@@ -148,16 +151,23 @@ class SelectQueryBuilder
 
     public function sql()
     {
+        $this->build();
         return $this->sql;
     }
 
-    public function exec()
+    public function set_sql($sql)
     {
+        $this->sql = $sql;
+        return $this;
+    }
+
+    public function execute()
+    {
+        if ($this->executed) {
+            die('Query already executed');
+        }
         $this->build();
         $result = $this->mysqli->query($this->sql);
-        if ($result->num_rows > 0) {
-            return $result->fetch_all(MYSQLI_ASSOC);
-        }
-        return [];
+        return $result;
     }
 }

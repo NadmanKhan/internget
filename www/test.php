@@ -8,13 +8,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
     <!-- Bootstrap CSS v5.2.1 -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/css/bootstrap.min.css" rel="stylesheet"
-        integrity="sha384-iYQeCzEYFbKjA/T2uDLTpkwGzCiq6soy8tYaI1GyVh/UjpbCx/TYkiZhlZB6+fzT" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-iYQeCzEYFbKjA/T2uDLTpkwGzCiq6soy8tYaI1GyVh/UjpbCx/TYkiZhlZB6+fzT" crossorigin="anonymous">
 
     <!-- FontAwesome CSS -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
-        integrity="sha512-1ycn6IcaQQ40/MKBW2W4Rhis/DbILU74C1vSrLJxCq57o941Ym01SwNsOMqvEBFlcgUa6xLiPY/NS5R+E6ztJQ=="
-        crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" integrity="sha512-1ycn6IcaQQ40/MKBW2W4Rhis/DbILU74C1vSrLJxCq57o941Ym01SwNsOMqvEBFlcgUa6xLiPY/NS5R+E6ztJQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
     <!-- Cookies helper -->
     <script src="/assets/js/cookies.js"></script>
@@ -168,13 +165,11 @@
         <!-- place footer here -->
     </footer>
     <!-- Bootstrap JavaScript Libraries -->
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"
-        integrity="sha384-oBqDVmMz9ATKxIep9tiCxS/Z9fNfEXiDAYTujMAeBAsjFuCZSmKbSSUnQlmh/jp3" crossorigin="anonymous">
-        </script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js" integrity="sha384-oBqDVmMz9ATKxIep9tiCxS/Z9fNfEXiDAYTujMAeBAsjFuCZSmKbSSUnQlmh/jp3" crossorigin="anonymous">
+    </script>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/js/bootstrap.min.js"
-        integrity="sha384-7VPbUDkoPSGFnVtYi0QogXtr74QeVeeIs99Qfg5YCF+TidwNdjvaKZX19NZ/e6oz" crossorigin="anonymous">
-        </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/js/bootstrap.min.js" integrity="sha384-7VPbUDkoPSGFnVtYi0QogXtr74QeVeeIs99Qfg5YCF+TidwNdjvaKZX19NZ/e6oz" crossorigin="anonymous">
+    </script>
 
     <!-- Custom JavaScript -->
 
@@ -235,8 +230,14 @@
 
                 // add to selected options
                 function selectOption(option) {
-                    const selectedOptions = selectedOptionsText.value.split(',');
+                    const selectedOptions = selectedOptionsText.value.split(',')
+                        .filter(selectedOption => selectedOption !== '');
+                    console.log('before push');
+                    console.log(selectedOptions);
                     selectedOptions.push(option.trim());
+                    console.log('after push');
+                    console.log(selectedOptions);
+                    selectedOptions.filter(selectedOption => selectedOption !== '');
                     selectedOptionsText.value = selectedOptions.join(',');
                     resetInputAndCloseMenu();
                     postProcessUpdateSelectedOptions();
@@ -245,7 +246,8 @@
                 // remove from selected options
                 function unselectOption(option) {
                     const selectedOptions = selectedOptionsText.value.split(',')
-                        .filter(selectedOption => selectedOption !== option)
+                        .filter(selectedOption =>
+                            selectedOption !== option && selectedOption !== '')
                         .map(selectedOption => selectedOption.trim());
                     selectedOptionsText.value = selectedOptions.join(',');
                     postProcessUpdateSelectedOptions();
@@ -263,191 +265,135 @@
                     const chipLabels = selectedOptionsText.value.split(',');
                     chipContainer.innerHTML = '';
                     chipLabels.forEach(chipLabel => {
-                        if (chipLabel) {
-                            const chip = createChipElement(chipLabel.trim());
-                            chipContainer.appendChild(chip);
+                        if (chipLabel !== '') {
+                            chipContainer.appendChild(createChipElement(chipLabel));
                         }
                     });
-                    if (chipContainer.innerHTML.length > 0) {
-                        chipContainer.classList.add('has-chips');
-                    } else {
-                        chipContainer.classList.remove('has-chips');
-                    }
-                }
-
-                // update chips when document is ready
-                document.addEventListener('DOMContentLoaded', updateChips);
-
-                // fire update chips when selected option changes (input event)
-                selectedOptionsText.addEventListener('input', updateChips);
-
-                // fire update chips when selected option changes (change event)
-                selectedOptionsText.addEventListener('change', updateChips);
-
-                // get autocomplete options
-                function getAutocompleteOptions() {
-                    // const baseUrl = window.location.href.split('?')[0];
-                    const baseUrl = '/';
-                    console.log(baseUrl);
-                    const params = new URLSearchParams({
-                        search: 'live',
-                        name: selectedOptionsText.name,
-                        value: chipInput.value
-                    });
-                    const url = baseUrl + '?' + params.toString();
-
-                    let autocompleteOptions = [];
-                    const xhttp = new XMLHttpRequest();
-                    xhttp.onload = function () {
-                        console.log(this.responseText);
-                        autocompleteOptions = JSON.parse(this.responseText);
-                    };
-                    xhttp.open('GET', url, false);
-                    xhttp.send();
-                    return autocompleteOptions;
-                }
-
-                // create autocomplete option
-                function createAutocompleteOptionElement(option) {
-                    const element = document.createElement('li');
-                    element.classList.add('dropdown-item');
-                    element.style.cursor = 'pointer';
-                    element.textContent = option;
-                    console.log('new: ' + option);
-                    return element;
-                }
-
-                // filter autocomplete options
-                function filterAutocompleteOptions() {
-                    const autocompleteOptions = getAutocompleteOptions();
-                    console.log('before');
-                    console.log(autocompleteOptions);
-                    const selectedOptions = selectedOptionsText.value.split(',');
-                    const chipInputValue = chipInput.value;
-                    const filteredAutocompleteOptions
-                        = autocompleteOptions.filter(autocompleteOption => {
-                            return !selectedOptions.includes(autocompleteOption) &&
-                                autocompleteOption
-                                    .toLowerCase()
-                                    .startsWith(chipInputValue.toLowerCase());
-                        });
-                    console.log('after');
-                    console.log(filteredAutocompleteOptions);
-                    return filteredAutocompleteOptions;
                 }
 
                 // update autocomplete options
-                function updateAutocompleteOptions() {
-                    const filteredAutocompleteOptions = filterAutocompleteOptions();
+                async function updateAutocompleteOptions() {
                     autocompleteMenu.innerHTML = '';
-                    filteredAutocompleteOptions.forEach(option => {
-                        const element = createAutocompleteOptionElement(option);
-                        autocompleteMenu.appendChild(element);
+                    const selectedOptions = selectedOptionsText.value.split(',')
+                        .filter(selectedOption => selectedOption !== '')
+                        .map(selectedOption => selectedOption.trim());
+
+                    const response = await fetch(chipsAutocompleteDiv.dataset.url, {
+                        method: 'POST',
+                        body: JSON.stringify({
+                            searchTerm: chipInput.value,
+                            selectedOptions: selectedOptions
+                        }),
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
                     });
-                    console.log('html:===>' + autocompleteMenu.innerHTML);
+
+                    if (response.ok) {
+                        const options = await response.json();
+                        options.forEach(option => {
+                            const element = document.createElement('div');
+                            element.classList.add('autocomplete-option');
+                            element.textContent = option;
+
+                            element.addEventListener('click', () => {
+                                selectOption(option);
+                            });
+
+                            autocompleteMenu.appendChild(element);
+                        });
+                    }
                 }
 
-                // handle chip text input
-                chipInput.addEventListener('input', e => {
-                    const chipInputValue = e.target.value;
-                    if (chipInputValue) {
-                        updateAutocompleteOptions();
-                        openMenu();
+                // handle keydown event for chip input
+                chipInput.addEventListener('keydown', e => {
+                    // if tab or enter is pressed, add chip
+                    if (e.keyCode === 9 || e.keyCode === 13) {
+                        e.preventDefault();
+                        selectOption(chipInput.value);
                     }
-                });
-
-                // handle blur on chip input
-                chipInput.addEventListener('blur', e => {
-                    resetInputAndCloseMenu();
-                });
-
-                // handle focus on chip input
-                chipInput.addEventListener('focus', e => {
-                    const chipInputValue = e.target.value;
-                    if (chipInputValue.length) {
-                        updateAutocompleteOptions();
-                        openMenu();
-                    } else {
+                    // if escape is pressed, close menu
+                    if (e.keyCode === 27) {
                         resetInputAndCloseMenu();
                     }
-                });
-
-                // focus chip input on click on whole chips autocomplete div
-                chipsAutocompleteDiv.addEventListener('click', e => {
-                    chipInput.focus();
-                });
-
-                // handle mousedown on autocomplete option
-                autocompleteMenu.addEventListener('mousedown', e => {
-                    const option = e.target.textContent;
-                    if (option.length) {
-                        selectOption(option);
-                    }
-                });
-
-                // handle keydown on chip input
-                chipInput.addEventListener('keydown', e => {
-                    // check and add chip on enter key
-                    if (e.key === 'Enter') {
-                        e.preventDefault();
-                        const value = e.target.value;
-                        if (filterAutocompleteOptions().includes(value)) {
-                            selectOption(value);
-                        }
-                    }
-                    // remove last chip on backspace key
-                    else if (e.key === 'Backspace') {
-                        const value = e.target.value;
-                        if (!value.length && selectedOptionsText.value.length) {
-                            unselectOption(chipContainer.lastElementChild.textContent);
-                            resetInputAndCloseMenu();
-                            chipInput.focus();
-                        }
-                    }
-
-                    // handle up and down arrow keys
-                    else if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
-                        e.preventDefault();
-                        const options = autocompleteMenu.querySelectorAll('.dropdown-item');
-                        if (options.length) {
-                            const activeOption = autocompleteMenu.querySelector('.active');
-                            if (activeOption) {
-                                activeOption.classList.remove('active');
-                                if (e.key === 'ArrowUp') {
-                                    const prevOption = activeOption.previousElementSibling;
-                                    if (prevOption) {
-                                        prevOption.classList.add('active');
-                                    } else {
-                                        options[options.length - 1].classList.add('active');
-                                    }
-                                } else {
-                                    const nextOption = activeOption.nextElementSibling;
-                                    if (nextOption) {
-                                        nextOption.classList.add('active');
-                                    } else {
-                                        options[0].classList.add('active');
-                                    }
-                                }
+                    // if down arrow is pressed, highlight next option
+                    if (e.keyCode === 40) {
+                        const options = autocompleteMenu.querySelectorAll('.autocomplete-option');
+                        let activeOption = autocompleteMenu.querySelector('.active');
+                        if (activeOption) {
+                            activeOption.classList.remove('active');
+                            const nextOption = activeOption.nextElementSibling;
+                            if (nextOption) {
+                                nextOption.classList.add('active');
                             } else {
                                 options[0].classList.add('active');
                             }
+                        } else {
+                            options[0].classList.add('active');
+                        }
+                    }
+                    // if up arrow is pressed, highlight previous option
+                    if (e.keyCode === 38) {
+                        const options = autocompleteMenu.querySelectorAll('.autocomplete-option');
+                        let activeOption = autocompleteMenu.querySelector('.active');
+                        if (activeOption) {
+                            activeOption.classList.remove('active');
+                            const prevOption = activeOption.previousElementSibling;
+                            if (prevOption) {
+                                prevOption.classList.add('active');
+                            } else {
+                                options[options.length - 1].classList.add('active');
+                            }
+                        } else {
+                            options[options.length - 1].classList.add('active');
                         }
                     }
                 });
 
+                // handle focus event for chip input
+                chipInput.addEventListener('focus', e => {
+                    openMenu();
+                });
 
-                // handle keydown on chips autocomplete div
-                chipsAutocompleteDiv.addEventListener('keydown', e => {
-                    // check and add chip on enter key
-                    if (e.key === 'Enter') {
-                        e.preventDefault();
-                        const activeOption = autocompleteMenu.querySelector('.active');
-                        if (activeOption) {
-                            const option = activeOption.textContent;
-                            if (option.length) {
-                                selectOption(option);
-                            }
+                // handle blur event for chip input
+                chipInput.addEventListener('blur', e => {
+                    setTimeout(() => {
+                        resetInputAndCloseMenu();
+                    }, 200);
+                });
+
+                // handle input event for chip input
+                chipInput.addEventListener('input', e => {
+                    updateAutocompleteOptions();
+                });
+
+                // handle form submission
+                form.addEventListener('submit', async e => {
+                    e.preventDefault();
+                    const selectedOptions = selectedOptionsText.value.split(',')
+                        .filter(selectedOption => selectedOption !== '')
+                        .map(selectedOption => selectedOption.trim());
+
+                    const formData = new FormData(form);
+                    formData.append('selectedOptions', selectedOptions);
+
+                    const response = await fetch(form.action, {
+                        method: form.method,
+                        body: formData
+                    });
+
+                    if (response.ok) {
+                        const result = await response.json();
+                        if (result.success) {
+                            form.reset();
+                            selectedOptionsText.value = '';
+                            updateChips();
+                            alert('Success!');
+                        } else {
+                            alert('Error: ' + result.error);
                         }
+                    } else {
+                        alert('Error: ' + response.statusText);
                     }
                 });
             });

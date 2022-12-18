@@ -35,13 +35,13 @@ HTML;
             <section id="search_form_misc" class="row border rounded g-2 px-1 py-2 pt-0 g-1 mb-2 m-3">
                 <small class="text-secondary p-1 col-12">Miscellaneous</small>
 
-                <div class="form-group col-sm-12 col-md-6">
+                <!-- <div class="form-group col-sm-12 col-md-12">
                     <label for="keywords" class="form-label mb-0">Keywords (search in all fields)</label>
 
                     <?= chips_autocomplete('keywords') ?>
-                </div>
+                </div> -->
 
-                <div class="form-group col-sm-12 col-md-6">
+                <div class="form-group col-sm-12 col-md-12">
                     <label for="tags" class="form-label mb-0">Tags</label>
 
                     <?= chips_autocomplete('tags') ?>

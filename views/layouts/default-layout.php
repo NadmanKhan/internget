@@ -23,11 +23,8 @@
         integrity="sha512-MV7K8+y+gLIBoVD59lQIYicR65iaqukzvf/nwasF0nqhPay5w/9lJmVM2hMDcnK1OnMGCdVK+iQrJ7lzPJQd1w=="
         crossorigin="anonymous" referrerpolicy="no-referrer" />
 
-    <!-- Global CSS -->
-    <link rel="stylesheet" type="text/css" media="screen" href="/assets/css/global.css">
-
     <?php foreach ($page_css as $file) { ?>
-    <!-- Extra CSS -->
+    <!-- Custom CSS -->
     <link rel="stylesheet" type="text/css" media="screen" href="/assets/css/<?= $file ?>.css">
     <?php } ?>
 
@@ -39,11 +36,8 @@
         integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4" crossorigin="anonymous"
         async defer></script>
 
-    <!-- Global JS -->
-    <script src="/assets/js/global.js" defer></script>
-
     <?php foreach ($page_js as $file) { ?>
-    <!-- Extra JS -->
+    <!-- Custom JS -->
     <script src="/assets/js/<?= $file ?>.js" defer></script>
     <?php } ?>
 </head>

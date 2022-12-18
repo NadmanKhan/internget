@@ -8,20 +8,6 @@ forms.forEach(form => {
         const autocompleteMenu = chipsAutocompleteDiv.querySelector('.autocomplete-menu');
         const chipContainer = chipsAutocompleteDiv.querySelector('.chip-container');
 
-        // reset chip input and close autocomplete menu
-        function resetInputAndCloseMenu() {
-            chipInput.value = '';
-            autocompleteMenu.classList.remove('show');
-            chipInput.ariaExpanded = false;
-        }
-
-        // open autocomplete menu
-        function openMenu() {
-            updateAutocompleteOptions();
-            autocompleteMenu.classList.add('show');
-            chipInput.ariaExpanded = true;
-        }
-
         // create chip from chip label
         function createChipElement(chipLabel) {
             const element = document.createElement('div');
@@ -56,11 +42,7 @@ forms.forEach(form => {
         function selectOption(option) {
             const selectedOptions = selectedOptionsText.value.split(',')
                 .filter(selectedOption => selectedOption !== '');
-            console.log('before push');
-            console.log(selectedOptions);
             selectedOptions.push(option.trim());
-            console.log('after push');
-            console.log(selectedOptions);
             selectedOptions.filter(selectedOption => selectedOption !== '');
             selectedOptionsText.value = selectedOptions.join(',');
             resetInputAndCloseMenu();
@@ -80,8 +62,8 @@ forms.forEach(form => {
         // post-process update of selected options
         function postProcessUpdateSelectedOptions() {
             setCookie(selectedOptionsText.name, selectedOptionsText.value, 7, '/');
-            updateAutocompleteOptions();
             updateChips();
+            chipInput.dispatchEvent(new Event('input'));
         }
 
         // update chips from selected options
@@ -110,26 +92,6 @@ forms.forEach(form => {
         // fire update chips when selected option changes (change event)
         selectedOptionsText.addEventListener('change', updateChips);
 
-        // get autocomplete options
-        function getAutocompleteOptions() {
-            const baseUrl = window.location.href.split('?')[0];
-            const params = new URLSearchParams({
-                search: 'live',
-                field: selectedOptionsText.name,
-                value: chipInput.value
-            });
-            const url = baseUrl + '?' + params.toString();
-
-            let autocompleteOptions = [];
-            const xhttp = new XMLHttpRequest();
-            xhttp.onload = function () {
-                autocompleteOptions = JSON.parse(this.responseText);
-            };
-            xhttp.open('GET', url, false);
-            xhttp.send();
-            return autocompleteOptions;
-        }
-
         // create autocomplete option
         function createAutocompleteOptionElement(option) {
             const element = document.createElement('li');
@@ -139,9 +101,24 @@ forms.forEach(form => {
             return element;
         }
 
+        // get autocomplete options
+        async function getAutocompleteOptions() {
+            const baseUrl = window.location.href.split('?')[0];
+            const params = new URLSearchParams({
+                search: 'live',
+                field: selectedOptionsText.name,
+                value: chipInput.value
+            });
+            const url = baseUrl + '?' + params.toString();
+
+            const response = await fetch(url);
+            const { options } = await response.json();
+            return options;
+        }
+
         // filter autocomplete options
-        function filterAutocompleteOptions() {
-            const autocompleteOptions = getAutocompleteOptions();
+        async function filterAutocompleteOptions() {
+            const autocompleteOptions = await getAutocompleteOptions();
             const selectedOptions = selectedOptionsText.value.split(',');
             const chipInputValue = chipInput.value;
             const filteredAutocompleteOptions
@@ -155,8 +132,8 @@ forms.forEach(form => {
         }
 
         // update autocomplete options
-        function updateAutocompleteOptions() {
-            const filteredAutocompleteOptions = filterAutocompleteOptions();
+        async function updateAutocompleteOptions() {
+            const filteredAutocompleteOptions = await filterAutocompleteOptions();
             autocompleteMenu.innerHTML = '';
             filteredAutocompleteOptions.forEach(option => {
                 const element = createAutocompleteOptionElement(option);
@@ -164,11 +141,24 @@ forms.forEach(form => {
             });
         }
 
+        // reset chip input and close autocomplete menu
+        function resetInputAndCloseMenu() {
+            chipInput.value = '';
+            autocompleteMenu.classList.remove('show');
+            chipInput.ariaExpanded = false;
+        }
+
+        // open autocomplete menu
+        function openMenu() {
+            autocompleteMenu.classList.add('show');
+            chipInput.ariaExpanded = true;
+        }
+
         // handle chip text input
-        chipInput.addEventListener('input', e => {
+        chipInput.addEventListener('input', async e => {
             const chipInputValue = e.target.value;
             if (chipInputValue) {
-                updateAutocompleteOptions();
+                await updateAutocompleteOptions();
                 openMenu();
             }
         });
@@ -179,10 +169,9 @@ forms.forEach(form => {
         });
 
         // handle focus on chip input
-        chipInput.addEventListener('focus', e => {
-            const chipInputValue = e.target.value;
-            if (chipInputValue.length) {
-                updateAutocompleteOptions();
+        chipInput.addEventListener('focus', async e => {
+            if (e.target.value.trim().length) {
+                await updateAutocompleteOptions();
                 openMenu();
             } else {
                 resetInputAndCloseMenu();
