@@ -6,10 +6,10 @@ if (!isset($_GET['id'])) {
 }
 
 // require the render function
-require_once($_SERVER['DOCUMENT_ROOT'] . '/../functions/render.php');
+require_once($_SERVER['DOCUMENT_ROOT'] . '/../helpers/render.php');
 
 // require the internship model
-require_once($_SERVER['DOCUMENT_ROOT'] . '/../models/internship-model.php');
+require_once($_SERVER['DOCUMENT_ROOT'] . '/../models/internship.php');
 
 echo render('internship-detail-view', [
     'page_layout' => 'default',

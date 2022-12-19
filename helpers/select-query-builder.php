@@ -168,6 +168,7 @@ class SelectQueryBuilder
         }
         $this->build();
         $result = $this->mysqli->query($this->sql);
+        $executed = true;
         return $result;
     }
 }

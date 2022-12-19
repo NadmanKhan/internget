@@ -1,12 +1,13 @@
 <?php
 
-require_once($_SERVER['DOCUMENT_ROOT'] . '/../models/student-model.php');
-require_once($_SERVER['DOCUMENT_ROOT'] . '/../functions/render.php');
+require_once($_SERVER['DOCUMENT_ROOT'] . '/../models/student.php');
+require_once($_SERVER['DOCUMENT_ROOT'] . '/../helpers/render.php');
 
 // handle student signup
 
 $name_feedback = $email_feedback = $password_feedback = $confirm_password_feedback = '';
 $name = $email = $password = $confirm_password = '';
+$ok = null;
 
 if (isset($_POST['submit'])) {
     $name = filter_var($_POST['name'], FILTER_SANITIZE_STRING);
@@ -27,15 +28,13 @@ if (isset($_POST['submit'])) {
         } else if ($password !== $confirm_password) {
             $confirm_password_feedback = 'Passwords do not match';
         }
-        
+
         if ($name_feedback === '' && $email_feedback === '' && $password_feedback === '' && $confirm_password_feedback === '') {
-            $query = new InsertQueryBuilder();
-            $query->INSERT_INTO('Student')
-                ->COLUMNS('email', 'password', 'name')
-                ->VALUES($email, $password, $name)
-                ->build()
-                ->execute();
-            header('Location: /');
+            $ok = create_student($name, $email, $password);
+            if (!$ok) {
+                die('Error creating student');
+            }
+            header('Location: http://localhost');
             return;
         }
     }
@@ -44,9 +43,9 @@ if (isset($_POST['submit'])) {
 $password = $confirm_password = '';
 
 echo render('student-signup-view', [
-    $page_title = 'Student Signup',
-    $page_description = 'Student Signup',
-    $page_layout = 'auth',
+    'page_title' => 'Student Signup',
+    'page_description' => 'Student Signup',
+    'page_layout' => 'auth',
 
     'name' => $name,
     'email' => $email,

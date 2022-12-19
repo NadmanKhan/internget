@@ -1,12 +1,12 @@
 <?php
 
-require_once($_SERVER['DOCUMENT_ROOT'] . '/../models/organization-model.php');
-require_once($_SERVER['DOCUMENT_ROOT'] . '/../functions/render.php');
+require_once($_SERVER['DOCUMENT_ROOT'] . '/../models/organization.php');
+require_once($_SERVER['DOCUMENT_ROOT'] . '/../helpers/render.php');
 
-// handle employer (organization) Signup
-
+// handle organization signup
 $name_feedback = $email_feedback = $password_feedback = $confirm_password_feedback = '';
 $name = $email = $password = $confirm_password = '';
+$ok = null;
 
 if (isset($_POST['submit'])) {
     $name = filter_var($_POST['name'], FILTER_SANITIZE_STRING);
@@ -27,11 +27,17 @@ if (isset($_POST['submit'])) {
         } else if ($password !== $confirm_password) {
             $confirm_password_feedback = 'Passwords do not match';
         }
-        
+
         if ($name_feedback === '' && $email_feedback === '' && $password_feedback === '' && $confirm_password_feedback === '') {
-            create_organization($name, $email, $password);
-            header('Location: /');
+            $ok = create_organization($name, $email, $password);
+            if (!$ok) {
+                die('Error creating organization');
+            }
+            header('Location: http://localhost');
             return;
+        } else {
+            echo 'form not valid';
+            var_dump($name_feedback, $email_feedback, $password_feedback, $confirm_password_feedback);
         }
     }
 }
@@ -43,12 +49,10 @@ echo render('employer-signup-view', [
     'page_description' => 'Employer Signup',
     'page_layout' => 'auth',
 
+    'name' => $name,
+    'email' => $email,
     'name_feedback' => $name_feedback,
     'email_feedback' => $email_feedback,
     'password_feedback' => $password_feedback,
-    'confirm_password_feedback' => $confirm_password_feedback,
-    'name' => $name,
-    'email' => $email,
-    'password' => $password,
-    'confirm_password' => $confirm_password
+    'confirm_password_feedback' => $confirm_password_feedback
 ]);

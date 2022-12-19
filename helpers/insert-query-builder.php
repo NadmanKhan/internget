@@ -17,7 +17,7 @@ class InsertQueryBuilder
     public function __construct()
     {
         global $mysqli;
-        $executed = false;
+        $this->executed = false;
         $this->mysqli = $mysqli;
         $this->columns = [];
         $this->values = [];
@@ -52,6 +52,14 @@ class InsertQueryBuilder
         $this->sql .= ')';
         $this->built = true;
         return $this;
+    }
+
+    public function sql()
+    {
+        if (!$this->built) {
+            $this->build();
+        }
+        return $this->sql;
     }
 
     public function execute()

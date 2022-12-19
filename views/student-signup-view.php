@@ -2,7 +2,7 @@
     <div class="container-fluid d-flex flex-column justify-content-center align-items-center mt-5 mw-100">
         <h1>Student Signup</h1>
 
-        <form class="row g-2" style="max-width: 600px;">
+        <form method="POST" action="/student-signup/index.php" class="row g-2" style="max-width: 600px;">
             <div class="form-group col-12">
                 <label for="name" class="col-lg-6">Name</label>
 
@@ -49,7 +49,7 @@
             </div>
 
             <div class="form-group col-12">
-                <input type="submit" class="btn btn-primary mt-2" value="Sign up">
+                <input type="submit" name="submit" class="btn btn-primary mt-2" value="Sign up">
             </div>
         </form>
     </div>

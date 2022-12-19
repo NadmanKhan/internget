@@ -1,7 +1,7 @@
 <?php
 
-require_once($_SERVER['DOCUMENT_ROOT'] . '/../functions/render.php');
-require_once($_SERVER['DOCUMENT_ROOT'] . '/../models/search-model.php');
+require_once($_SERVER['DOCUMENT_ROOT'] . '/../helpers/render.php');
+require_once($_SERVER['DOCUMENT_ROOT'] . '/../models/search.php');
 
 $tags = $positions = $domains =
     $skills_required = $skills_learnable = $orgs =
