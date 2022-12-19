@@ -1,7 +1,6 @@
 <?php
 
-require_once($_SERVER['DOCUMENT_ROOT'] . '/../helpers/select-query-builder.php');
-require_once($_SERVER['DOCUMENT_ROOT'] . '/../helpers/insert-query-builder.php');
+require_once($_SERVER['DOCUMENT_ROOT'] . '/../helpers/query-builder.php');
 require_once($_SERVER['DOCUMENT_ROOT'] . '/../helpers/make-string.php');
 
 // define student related business logic

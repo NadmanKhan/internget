@@ -1,6 +1,6 @@
 <?php
 
-require_once($_SERVER['DOCUMENT_ROOT'] . '/../helpers/select-query-builder.php');
+require_once($_SERVER['DOCUMENT_ROOT'] . '/../helpers/query-builder.php');
 
 function autocomplete_options($field, $value)
 {
