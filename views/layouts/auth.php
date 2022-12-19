@@ -46,11 +46,11 @@
 
     <div class="container-fluid">
         <header>
-            <?php require_once($_SERVER['DOCUMENT_ROOT'] . '/../views/partials/header.php'); ?>
+
         </header>
     </div>
 
-    <div class="container-fluid">
+    <div class="container mt-5">
 
         <?= $page_content ?? '' ?>
 
@@ -58,7 +58,7 @@
 
     <div class="container-fluid">
         <footer>
-            <?php require_once($_SERVER['DOCUMENT_ROOT'] . '/../views/partials/footer.php'); ?>
+            
         </footer>
     </div>
 </body>

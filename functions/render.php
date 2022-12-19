@@ -13,13 +13,18 @@ function render($view, $data = []): bool|string
             $page_content = ob_get_clean();
             $path_to_layout = $_SERVER['DOCUMENT_ROOT'] . '/../views/layouts/' .
                 $page_layout . '.php';
-            require_once($path_to_layout);
+            if (file_exists($path_to_layout)) {
+                require_once($path_to_layout);
+            } else {
+                die('Layout not found: ' . $path_to_layout);
+            }
         }
         // otherwise, just render the view
         else {
             require_once($view);
         }
         return ob_get_clean();
+    } else {
+        die('View not found: ' . $path_to_view);
     }
-    return false;
 }

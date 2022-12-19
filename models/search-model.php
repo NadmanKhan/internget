@@ -55,5 +55,9 @@ function autocomplete_options($field, $value)
             return [];
     }
     $result = $query->execute();
-    return $result;
+    $rows = [];
+    while ($row = $result->fetch_row()) {
+        $rows[] = $row[0];
+    }
+    return $rows;
 }

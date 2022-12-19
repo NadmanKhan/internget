@@ -58,7 +58,7 @@ HTML;
                 </div>
 
                 <div class="form-group col-sm-12 col-md-6">
-                    <label for="domains" class="form-label mb-0">Domains</label>
+                    <label for="domains" class="form-label mb-0">Domains/industries/fields of study</label>
 
                     <?= chips_autocomplete('domains') ?>
                 </div>
@@ -104,13 +104,13 @@ HTML;
                                 value="hybrid" <?php if (in_array('hybrid', $workplace_mode))
                                     echo 'checked'; ?>>
 
-                            <label for="hybrid" class="form-check-label">Hybrid (remote + in-office)</label>
+                            <label for="hybrid" class="form-check-label">Hybrid (both remote & in-office)</label>
                         </div>
                     </div>
                 </div>
 
                 <div class="form-group col-sm-12 col-md-6">
-                    <label for="orgs" class="form-label mb-0">Organizations</label>
+                    <label for="orgs" class="form-label mb-0">Organization names</label>
 
                     <?= chips_autocomplete('orgs') ?>
                 </div>
@@ -146,13 +146,13 @@ HTML;
                 </div>
 
                 <div class="form-group col-sm-12 col-md-6">
-                    <label for="min_wage" class="form-label mb-0">Minimum hourly wage</label>
+                    <label for="min_pay" class="form-label mb-0">Minimum hourly pay</label>
 
                     <div class="input-group input-group-sm">
                         <span class="input-group-text">$</span>
 
-                        <input type="number" class="form-control form-control-sm" name="min_wage" id="min_wage"
-                            value="<?= $min_wage ?>" min="0" max="100000" step="0.01">
+                        <input type="number" class="form-control form-control-sm" name="min_pay" id="min_pay"
+                            value="<?= $min_pay ?>" min="0" max="100000" step="0.01">
 
                         <span class="input-group-text">/ hr</span>
                     </div>
@@ -178,6 +178,13 @@ HTML;
                                 value="full_time">
 
                             <label for="full_time" class="form-check-label">Full-time</label>
+                        </div>
+
+                        <div class="form-check form-check-inline">
+                            <input type="checkbox" class="form-check-input" name="time_type[]" id="project_based"
+                                value="project_based">
+
+                            <label for="project_based" class="form-check-label">Project-based</label>
                         </div>
                     </div>
                 </div>

@@ -2,7 +2,7 @@
 
 require_once($_SERVER['DOCUMENT_ROOT'] . '/../config/db.php');
 
-// mysql query builder
+// mysql select query builder
 class SelectQueryBuilder
 {
     private $mysqli;

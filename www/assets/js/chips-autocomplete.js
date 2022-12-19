@@ -103,17 +103,35 @@ forms.forEach(form => {
 
         // get autocomplete options
         async function getAutocompleteOptions() {
-            const baseUrl = window.location.href.split('?')[0];
-            const params = new URLSearchParams({
-                search: 'live',
-                field: selectedOptionsText.name,
-                value: chipInput.value
-            });
-            const url = baseUrl + '?' + params.toString();
+            const value = chipInput.value;
+            // if countries field, use restcountries.com API
+            if (selectedOptionsText.name === 'countries') {
+                const url = `https://restcountries.com/v3.1/name/${value.trim().toLowerCase()}`;
+                const response = await fetch(url);
+                const countries = await response.json();
+                const options = countries
+                    .filter(country =>
+                        country !== undefined &&
+                        country.name !== undefined &&
+                        country.name.common !== undefined &&
+                        country.name.common.toLowerCase().startsWith(value.trim().toLowerCase()))
+                    .map(country => country.name.common);
+                return options;
+            }
+            // other fields
+            else {
+                const baseUrl = '/';
+                const params = new URLSearchParams({
+                    search: 'live',
+                    field: selectedOptionsText.name,
+                    value: value
+                });
+                const url = baseUrl + '?' + params.toString();
 
-            const response = await fetch(url);
-            const { options } = await response.json();
-            return options;
+                const response = await fetch(url);
+                const { options } = await response.json();
+                return options;
+            }
         }
 
         // filter autocomplete options
@@ -145,6 +163,7 @@ forms.forEach(form => {
         function resetInputAndCloseMenu() {
             chipInput.value = '';
             autocompleteMenu.classList.remove('show');
+            autocompleteMenu.innerHTML = '';
             chipInput.ariaExpanded = false;
         }
 
@@ -192,13 +211,17 @@ forms.forEach(form => {
         });
 
         // handle keydown on chip input
-        chipInput.addEventListener('keydown', e => {
+        chipInput.addEventListener('keydown', async e => {
             // check and add chip on enter key
             if (e.key === 'Enter') {
                 e.preventDefault();
                 const value = e.target.value;
-                if (filterAutocompleteOptions().includes(value)) {
-                    selectOption(value);
+                const options = await filterAutocompleteOptions();
+                const matching = options.filter(option => option.toLowerCase() === value.toLowerCase());
+                if (matching.length) {
+                    selectOption(matching[0]);
+                    resetInputAndCloseMenu();
+                    chipInput.focus();
                 }
             }
             // remove last chip on backspace key
