@@ -1,4 +1,7 @@
 <?php
+
+// Rename this file to db.php and fill in the details below
+
 define('DB_HOST', 'hostname');
 define('DB_USER', 'username');
 define('DB_PASS', 'password');
