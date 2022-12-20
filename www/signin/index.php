@@ -43,6 +43,7 @@ echo render('signin-view', [
     'email' => $email,
     'password' => $password,
     'email_err' => $email_err,
-    'password_err' => $password_err
+    'password_err' => $password_err,
+    'main_err' => $main_err,
 ]);
 

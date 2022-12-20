@@ -84,7 +84,13 @@ forms.forEach(form => {
         }
 
         // update chips when document is ready
-        document.addEventListener('DOMContentLoaded', updateChips);
+        document.addEventListener('DOMContentLoaded', () => {
+            const cookieValue = getCookie(selectedOptionsText.name);
+            if (cookieValue) {
+                selectedOptionsText.value = cookieValue;
+            }
+            updateChips();
+        });
 
         // fire update chips when selected option changes (input event)
         selectedOptionsText.addEventListener('input', updateChips);

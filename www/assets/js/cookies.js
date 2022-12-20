@@ -6,18 +6,18 @@ function setCookie(name, value, days = 7, path = '/') {
     date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
     expires = '; expires=' + date.toUTCString();
   }
-  document.cookie = `${name}=${value || ''}${expires}; path=${path}`;
+  document.cookie = `${name}=${value || ''}${expires}; path=${path}; SameSite=Lax`;
 }
 
 // get cookie
 function getCookie(name) {
-  document.cookie.split(';').forEach(cookie => {
-    const [cookieName, cookieValue] = cookie.split('=').map(c => c.trim());
-    if (cookieName === name) {
+  for (let cookie of document.cookie.split(';')) {
+    const [cookieName, cookieValue] = cookie.split('=');
+    if (cookieName.trim() === name) {
       return cookieValue;
     }
-  });
-  return '';
+  }
+  return null;
 }
 
 // delete cookie

@@ -35,7 +35,6 @@ echo render('internship-search-view', [
     'page_css' => ['chips-autocomplete'],
     'page_js' => ['chips-autocomplete', 'cookies'],
 
-    'keywords' => $keywords,
     'tags' => $tags,
     'positions' => $positions,
     'domains' => $domains,

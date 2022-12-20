@@ -47,9 +47,13 @@
                     <?= $confirm_password_err ?>
                 </div>
             </div>
-            
-            <div style="background-color: lightcoral; color: darkred; font-weight: bold">
-                <?= $main_err ?>
+
+            <div class="p-0">
+                <div class="d-none <?= ($main_err ? 'is-invalid' : null) ?>"></div>
+                <div class="invalid-feedback p-2">
+                    <i class="fa-solid fa-circle-exclamation me-2"></i>
+                    <?= $main_err ?>
+                </div>
             </div>
 
             <div class="form-group col-12">

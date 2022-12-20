@@ -151,7 +151,7 @@ function get_user_by_email($email)
         }
     }
     return [
-        'data' => $user,
+        'data' => $user['data'],
         'error' => ($user ? '' : 'User with email does not exist')
     ];
 }
@@ -162,7 +162,9 @@ function check_no_user_exists($email)
     $user = get_user_by_email($email);
     return [
         'data' => !$user['data'],
-        'error' => ($user['data'] ? 'User with email already exists' : '')
+        'error' => ($user['data'] 
+        ? 'User with email already exists. <a href="/signin">Sign in</a> instead?' 
+        : '')
     ];
 }
 
@@ -173,8 +175,9 @@ function authenticate_user($email, $password)
     $error = '';
     if ($user['data']) {
         $user = $user['data'];
-        $user['authenticated'] = password_verify($password, $user['password']);
-        if (!$user['authenticated']) {
+        var_dump($user);
+        var_dump($password);
+        if (!password_verify($password, $user['password'])) {
             $error = 'Incorrect password';
         }
     } else {
