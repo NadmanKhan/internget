@@ -5,13 +5,13 @@ session_start();
 require_once($_SERVER['DOCUMENT_ROOT'] . '/../models/user.php');
 require_once($_SERVER['DOCUMENT_ROOT'] . '/../helpers/render.php');
 
-if (isset($_SESSION['email'])) {
+if (isset($_SESSION['user'])) {
     echo render_error_page(403, 'You are already signed in. Please sign out first.');
     return;
 }
 
-$name_err = $email_err = $password_err = $confirm_password_err = '';
-$name = $email = $password = $confirm_password = $main_err = '';
+$name_err = $email_err = $password_err = $confirm_password_err = $main_err = '';
+$name = $email = $password = $confirm_password = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     list(
@@ -59,6 +59,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         list('error' => $main_err) = create_student($name, $email, $hashed_password);
 
         if ($main_err === '') {
+            // all okay, redirect to sign-in
             header('Location: http://localhost/signin');
             return;
         }
@@ -69,7 +70,7 @@ $password = $confirm_password = '';
 
 RENDER:
 echo render('signup-student-view', [
-    'page_title' => 'Student Signup',
+    'page_title' => 'Student Sign-up',
     'page_description' => 'Sign up as a student',
     'page_layout' => 'auth',
     'page_url' => '/signup-student/index.php',

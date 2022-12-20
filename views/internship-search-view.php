@@ -1,7 +1,65 @@
 <?php
 
+function render_internship($internship)
+{
+    $id = $internship['id'];
+    $title = $internship['title'];
+    $company = $internship['company'];
+    $location = $internship['location'];
+    $description = $internship['description'];
+    $start_date = $internship['start_date'];
+    $end_date = $internship['end_date'];
+    $duration = $internship['duration'];
+    $stipend = $internship['stipend'];
+    $apply_by = $internship['apply_by'];
+    $tags = $internship['tags'];
+    $positions = $internship['positions'];
+    $is_remote = $internship['is_remote'];
+    $is_paid = $internship['is_paid'];
+    $is_full_time = $internship['is_full_time'];
+    $is_part_time = $internship['is_part_time'];
+    $is_internship = $internship['is_internship'];
+    $is_volunteer = $internship['is_volunteer'];
+    $is_scholarship = $internship['is_scholarship'];
+    $is_fellowship = $internship['is_fellowship'];
+    $is_ngo = $internship['is_ngo'];
+    $is_government = $internship['is_government'];
+    $is_startup = $internship['is_startup'];
+    $is_mnc = $internship['is_mnc'];
+    $is_other = $internship['is_other'];
+    $is_active = $internship['is_active'];
+    $is_verified = $internship['is_verified'];
+    $is_featured = $internship['is_featured'];
+    $is_deleted = $internship['is_deleted'];
+    $created_at = $internship['created_at'];
+    $updated_at = $internship['updated_at'];
 
-function chips_autocomplete($name, $id = 'SAME_AS_NAME')
+    $tags = explode(',', $tags);
+    $positions = explode(',', $positions);
+
+    $tags = array_map(function ($tag) {
+        return "<span class=\"badge bg-secondary\">$tag</span>";
+    }, $tags);
+
+    $positions = array_map(function ($position) {
+        return "<span class=\"badge bg-secondary\">$position</span>";
+    }, $positions);
+
+    $tags = implode(' ', $tags);
+    $positions = implode(' ', $positions);
+
+    $is_remote = $is_remote ? 'Yes' : 'No';
+    $is_paid = $is_paid ? 'Yes' : 'No';
+    $is_full_time = $is_full_time ? 'Yes' : 'No';
+    $is_part_time = $is_part_time ? 'Yes' : 'No';
+
+    $is_internship = $is_internship ? 'Yes' : 'No';
+    $is_volunteer = $is_volunteer ? 'Yes' : 'No';
+    $is_scholarship = $is_scholarship ? 'Yes' : 'No';
+    $is_fellowship = $is_fellowship ? 'Yes' : 'No';
+}
+
+function render_chips_autocomplete($name, $id = 'SAME_AS_NAME')
 {
     if ($id === 'SAME_AS_NAME') {
         $id = $name;
@@ -19,10 +77,10 @@ function chips_autocomplete($name, $id = 'SAME_AS_NAME')
 
                 <input type="text" class="selected-options" name="$name" value="$value">
 
+                <ul class="autocomplete-menu dropdown-menu">
+                    </ul>
                 <input type="text" autocomplete="off" class="chip-input dropdown-toggle" data-bs-toggle="dropdown">
 
-                <ul class="autocomplete-menu dropdown-menu">
-                </ul>
             </div>
 HTML;
 }
@@ -35,16 +93,10 @@ HTML;
             <section id="search_form_misc" class="row border rounded g-2 px-1 py-2 pt-0 g-1 mb-2 m-3">
                 <small class="text-secondary p-1 col-12">Miscellaneous</small>
 
-                <!-- <div class="form-group col-sm-12 col-md-12">
-                    <label for="keywords" class="form-label mb-0">Keywords (search in all fields)</label>
-
-                    <?= chips_autocomplete('keywords') ?>
-                </div> -->
-
                 <div class="form-group col-sm-12 col-md-12">
                     <label for="tags" class="form-label mb-0">Tags</label>
 
-                    <?= chips_autocomplete('tags') ?>
+                    <?= render_chips_autocomplete('tags') ?>
                 </div>
             </section>
 
@@ -54,25 +106,25 @@ HTML;
                 <div class="form-group col-sm-12 col-md-6">
                     <label for="positions" class="form-label mb-0">Positions</label>
 
-                    <?= chips_autocomplete('positions') ?>
+                    <?= render_chips_autocomplete('positions') ?>
                 </div>
 
                 <div class="form-group col-sm-12 col-md-6">
                     <label for="domains" class="form-label mb-0">Domains/industries/fields of study</label>
 
-                    <?= chips_autocomplete('domains') ?>
+                    <?= render_chips_autocomplete('domains') ?>
                 </div>
 
                 <div class="form-group col-sm-12 col-md-6">
                     <label for="skills_required" class="form-label mb-0">Skills required</label>
 
-                    <?= chips_autocomplete('skills_required') ?>
+                    <?= render_chips_autocomplete('skills_required') ?>
                 </div>
 
                 <div class="form-group col-sm-12 col-md-6">
                     <label for="skills_learnable" class="form-label mb-0">Skills learnable</label>
 
-                    <?= chips_autocomplete('skills_learnable') ?>
+                    <?= render_chips_autocomplete('skills_learnable') ?>
                 </div>
             </section>
 
@@ -112,19 +164,19 @@ HTML;
                 <div class="form-group col-sm-12 col-md-6">
                     <label for="orgs" class="form-label mb-0">Organization names</label>
 
-                    <?= chips_autocomplete('orgs') ?>
+                    <?= render_chips_autocomplete('orgs') ?>
                 </div>
 
                 <div class="form-group col-sm-12 col-md-6">
                     <label for="cities" class="form-label mb-0">Cities</label>
 
-                    <?= chips_autocomplete('cities') ?>
+                    <?= render_chips_autocomplete('cities') ?>
                 </div>
 
                 <div class="form-group col-sm-12 col-md-6">
                     <label for="countries" class="form-label mb-0">Countries</label>
 
-                    <?= chips_autocomplete('countries') ?>
+                    <?= render_chips_autocomplete('countries') ?>
                 </div>
             </section>
 
@@ -286,8 +338,8 @@ HTML;
         </div>
         <div class="row">
             <div class="col-12">
-                <?php for ($i = 0; $i < 20; ++$i) { ?>
-                <article class="card m-3">
+                <!-- <?php for ($i = 0; $i < 20; ++$i) { ?>
+                    <article class="card m-3">
                     <div class="card-header">
                         <div class="card-header-pills">
                             <span class="badge rounded-pill text-bg-secondary">$20 / hr</span>
@@ -309,6 +361,36 @@ HTML;
                     </div>
 
                 </article>
+                <?php } ?> -->
+
+                <?php foreach($internships as $internship) { ?>
+                    <article class="card m-3">
+                        <div class="card-header">
+                            <div class="card-header-pills">
+                                <span class="badge rounded-pill text-bg-secondary">$<?= $internship['hourly_pay'] ?> / hr</span>
+                                <span class="badge rounded-pill text-bg-secondary"><?= $internship['title'] ?></span>
+                                <span class="badge rounded-pill text-bg-secondary"><?= $internship['company_name'] ?></span>
+                                <span class="badge rounded-pill text-bg-secondary"><?= $internship['location'] ?></span>
+                            </div>
+                        </div>
+
+                        <div class="card-body">
+                            <h5 class="card-title
+                            "><?= $internship['title'] ?></h5>
+                            <h6 class="card-subtitle mb-2 text-muted"><?= $internship['company_name'] ?></h6>
+                            <p class="card-text"><?= $internship['description'] ?></p>
+                            <a href="#" class="card-link">Card link</a>
+                            <a href="#" class="card-link">Another link</a>
+
+                            <div class="card-footer">
+                                <div class="card-footer-pills">
+                                    <span class="badge rounded-pill text-bg-secondary">Duration: <?= $internship['duration'] ?> weeks</span>
+                                    <span class="badge rounded-pill text-bg-secondary">Days per week: <?= $internship['days_per_week'] ?></span>
+                                    <span class="badge rounded-pill text-bg-secondary">Hours per week: <?= $internship['hours_per_week'] ?></span>
+                                </div>
+                            </div>
+                        </div>
+                    </article>
                 <?php } ?>
             </div>
         </div>

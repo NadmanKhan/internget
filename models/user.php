@@ -62,11 +62,11 @@ function validate_password($password)
     }
 
     if ($error === '') {
-        $password = password_hash($password, PASSWORD_DEFAULT);
+        $hashed_password = password_hash($password, PASSWORD_DEFAULT);
     }
 
     return [
-        'data' => $password,
+        'data' => $hashed_password,
         'error' => $error
     ];
 }
@@ -93,7 +93,7 @@ function validate_confirm_password($password, $confirm_password)
 // format query string to get user by email from any table
 $format_get_by_email = <<<SQL
     SELECT * 
-    FROM %s 
+    FROM %s
     WHERE email = ?
 SQL;
 
@@ -104,11 +104,14 @@ function get_student_by_email($email)
     global $format_get_by_email;
 
     $query = sprintf($format_get_by_email, 'Student');
+
     $stmt = $mysqli->prepare($query);
     $stmt->bind_param('s', $email);
     $stmt->execute();
+
     $result = $stmt->get_result();
     $stmt->close();
+    
     $student = $result->fetch_assoc();
     return [
         'data' => $student,
@@ -196,9 +199,11 @@ function create_student($name, $email, $password)
     global $format_create_user;
 
     $query = sprintf($format_create_user, 'Student');
+
     $stmt = $mysqli->prepare($query);
     $stmt->bind_param('sss', $name, $email, $password);
     $stmt->execute();
+    
     $stmt->close();
 
     $error = ($mysqli->error ? $mysqli->error : '');

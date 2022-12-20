@@ -103,7 +103,10 @@ forms.forEach(form => {
 
         // get autocomplete options
         async function getAutocompleteOptions() {
-            const value = chipInput.value;
+            const value = chipInput.value.trim();
+            if (value.length === 0) {
+                return [];
+            }
             // if countries field, use restcountries.com API
             if (selectedOptionsText.name === 'countries') {
                 const url = `https://restcountries.com/v3.1/name/${value.trim().toLowerCase()}`;
@@ -170,7 +173,6 @@ forms.forEach(form => {
         // open autocomplete menu
         function openMenu() {
             if (autocompleteMenu.innerHTML.length) {
-                console.log(autocompleteMenu.innerHTML);
                 autocompleteMenu.classList.add('show');
                 chipInput.ariaExpanded = true;
             }
