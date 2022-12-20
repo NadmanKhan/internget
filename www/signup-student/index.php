@@ -6,15 +6,20 @@ require_once($_SERVER['DOCUMENT_ROOT'] . '/../models/user.php');
 require_once($_SERVER['DOCUMENT_ROOT'] . '/../helpers/render.php');
 
 if (isset($_SESSION['email'])) {
-    // echo render_error_page(403, 'You are already signed in. Please sign out first.');
-    // return;
+    echo render_error_page(403, 'You are already signed in. Please sign out first.');
+    return;
 }
 
 $name_err = $email_err = $password_err = $confirm_password_err = '';
 $name = $email = $password = $confirm_password = $main_err = '';
 
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    list('name' => $name, 'email' => $email, 'password' => $password, 'confirm_password' => $confirm_password) = $_POST;
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    list(
+        'name' => $name,
+        'email' => $email,
+        'password' => $password,
+        'confirm_password' => $confirm_password
+    ) = $_POST;
 
     list(
         'data' => $name,
@@ -55,7 +60,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
         if ($main_err === '') {
             header('Location: http://localhost/signin');
-            return;        
+            return;
         }
     }
 }

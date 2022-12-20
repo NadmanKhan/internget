@@ -2,11 +2,10 @@
 
 session_start();
 
-require_once($_SERVER['DOCUMENT_ROOT'] . '/../models/student.php');
-require_once($_SERVER['DOCUMENT_ROOT'] . '/../models/organization.php');
+require_once($_SERVER['DOCUMENT_ROOT'] . '/../models/user.php');
 require_once($_SERVER['DOCUMENT_ROOT'] . '/../helpers/render.php');
 
-if (isset($_SESSION['email'])) {
+if (!empty($_SESSION)) {
     echo render_error_page(403, 'You are already signed in. Please sign out first.');
     return;
 }
@@ -14,8 +13,13 @@ if (isset($_SESSION['email'])) {
 $name_err = $email_err = $password_err = $confirm_password_err = '';
 $name = $email = $password = $confirm_password = '';
 
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    list('name' => $name, 'email' => $email, 'password' => $password, 'confirm_password' => $confirm_password) = $_POST;
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    list(
+        'name' => $name,
+        'email' => $email,
+        'password' => $password,
+        'confirm_password' => $confirm_password
+    ) = $_POST;
 
     list(
         'data' => $name,

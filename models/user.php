@@ -88,7 +88,7 @@ function validate_confirm_password($password, $confirm_password)
 }
 
 // db query functions
-// ================================
+// ===========================================
 
 // format query string to get user by email from any table
 $format_get_by_email = <<<SQL

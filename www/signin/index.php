@@ -14,13 +14,18 @@ $email_err = $password_err = '';
 $email = $password = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    list('email' => $email, 'password' => $password) = $_POST;
+    list(
+        'email' => $email,
+        'password' => $password,
+    ) = $_POST;
 
-    ['user' => $user, 'error' => $main_err] = authenticate_user($email, $password);
+    list(
+        'data' => $user,
+        'error' => $main_err
+    ) = authenticate_user($email, $password);
 
     if ($main_err === '') {
-        $_SESSION['email'] = $user['email'];
-        $_SESSION['type'] = $user['type'];
+        $_SESSION['user'] = $user;
 
         header('Location: http://localhost');
         return;
