@@ -1,6 +1,6 @@
 <main>
     <div class="container-fluid d-flex flex-column justify-content-center align-items-center mt-5 mw-100">
-        <h1>Employer Signup</h1>
+        <h1>Employer Sign-up</h1>
 
         <form method="POST" action="/employer-signup/index.php" class="row g-2" style="max-width: 600px;">
             <div class="form-group col-12">

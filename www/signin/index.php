@@ -23,14 +23,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     if (empty($email_err) && empty($password_err)) {
         $user = get_student_by_email($email);
-        
+        if (!$user) {
+            $user = get_organization_by_email($email);
+        }
         if ($user) {
-            if (password_verify($password, $user->password)) {
-                $_SESSION['user_id'] = $user->id;
-                $_SESSION['user_email'] = $user->email;
-                $_SESSION['user_name'] = $user->name;
+            if (password_verify($password, $user[2])) {
+                session_start();
+                $_SESSION['user'] = $user;
                 header('Location: /');
-                exit;
             } else {
                 $password_err = 'Invalid password';
             }
@@ -39,3 +39,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
     }
 }
+
+echo render('signin-view', [
+    'page_title' => 'Sign in',
+    'page_description' => 'Sign in to your account',
+    'page_layout' => 'auth',
+
+    'email' => $email,
+    'password' => $password,
+    'email_err' => $email_err,
+    'password_err' => $password_err
+]);
+

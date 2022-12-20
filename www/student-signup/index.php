@@ -8,7 +8,7 @@ require_once($_SERVER['DOCUMENT_ROOT'] . '/../helpers/render.php');
 $name_err = $email_err = $password_err = $confirm_password_err = '';
 $name = $email = $password = $confirm_password = '';
 
-if (isset($_POST['submit'])) {
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $name = filter_var($_POST['name'], FILTER_SANITIZE_STRING);
     $email = filter_var($_POST['email'], FILTER_SANITIZE_EMAIL);
     $password = filter_var($_POST['password'], FILTER_SANITIZE_STRING);
