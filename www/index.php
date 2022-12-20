@@ -1,5 +1,7 @@
 <?php
 
+session_start();
+
 require_once($_SERVER['DOCUMENT_ROOT'] . '/../helpers/render.php');
 require_once($_SERVER['DOCUMENT_ROOT'] . '/../models/search.php');
 
@@ -15,9 +17,7 @@ if (isset($_GET['search'])) {
     extract($_GET);
     // if live search
     if ($_GET['search'] === 'live') {
-        $options = autocomplete_options($field, $value);
-        echo json_encode(['options' => $options]);
-        return;
+        
     }
     // if normal search
     else {
@@ -27,10 +27,11 @@ if (isset($_GET['search'])) {
 
 
 
-echo render('search-view', [
+echo render('internship-search-view', [
     'page_layout' => 'default',
     'page_title' => 'Internship Search',
     'page_description' => 'Search for internships',
+    'page_url' => '/',
     'page_css' => ['chips-autocomplete'],
     'page_js' => ['chips-autocomplete', 'cookies'],
 

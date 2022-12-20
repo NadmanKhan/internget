@@ -28,3 +28,20 @@ function render($view, $data = []): bool|string
         die('View not found: ' . $path_to_view);
     }
 }
+
+function render_error_page($error_code, $error_message): bool|string
+{
+    // set the response status code
+    http_response_code($error_code);
+    http_build_query(['error' => $error_message]);
+
+    // render the error page
+    return render('error-view', [
+        'page_layout' => 'default',
+        'page_title' => 'Error ' . $error_code,
+        'page_description' => 'Error',
+
+        'error_code' => $error_code,
+        'error_message' => $error_message
+    ]);
+}
