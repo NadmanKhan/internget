@@ -10,7 +10,7 @@
                     autocomplete="name" value="<?= $name ?>" required>
 
                 <div class="invalid-feedback">
-                    <?= $name_feedback ?>
+                    <?= $name_err ?>
                 </div>
             </div>
 
@@ -21,7 +21,7 @@
                     autocomplete="email" value="<?= $email ?>" required>
 
                 <div class="invalid-feedback">
-                    <?= $email_feedback ?>
+                    <?= $email_err ?>
                 </div>
             </div>
 
@@ -32,7 +32,7 @@
                     autocomplete="new-password" required value="<?= $password ?>">
 
                 <div class="invalid-feedback">
-                    <?= $password_feedback ?>
+                    <?= $password_err ?>
                 </div>
             </div>
 
@@ -44,7 +44,7 @@
                     value="<?= $confirm_password ?>">
 
                 <div class="invalid-feedback">
-                    <?= $password_confirm_feedback ?>
+                    <?= $password_confirm_err ?>
                 </div>
             </div>
 

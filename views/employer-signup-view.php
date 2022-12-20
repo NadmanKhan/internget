@@ -1,17 +1,16 @@
 <main>
-<div class="container-fluid d-flex flex-column justify-content-center align-items-center mt-5 mw-100">
+    <div class="container-fluid d-flex flex-column justify-content-center align-items-center mt-5 mw-100">
         <h1>Employer Signup</h1>
 
         <form method="POST" action="/employer-signup/index.php" class="row g-2" style="max-width: 600px;">
             <div class="form-group col-12">
                 <label for="name">Employer Oganization Name</label>
 
-                <input type="text" class="form-control" id="name" name="name" placeholder="Enter the organization's name"
-                    autocomplete="organization" required value="<?= $name ?>">
-                
-                <div class="invalid-feedback"><?= $name_feedback ?></div>
+                <input type="text" class="form-control <?= ($name_err ? 'is-invalid' : null) ?>" id="name" name="name" placeholder="Enter the organization's name" autocomplete="organization" required value="<?= $name ?>">
+
+                <div class="invalid-feedback"><?= $name_err ?></div>
             </div>
-            
+
             <div class="form-group col-12">
                 <label for="country">Country</label>
 
@@ -270,36 +269,32 @@
             <div class="form-group col-12">
                 <label for="city">City</label>
 
-                <input type="text" class="form-control" id="city" name="city"
-                    placeholder="Enter the city of your organization's location" autocomplete="off">
+                <input type="text" class="form-control" id="city" name="city" placeholder="Enter the city of your organization's location" autocomplete="off">
             </div>
 
             <div class="form-group col-12">
                 <label for="email">Email address</label>
 
-                <input type="email" class="form-control" id="email" name="email" placeholder="Enter your email" autocomplete="email"
-                    required value="<?= $email ?>">
-                
-                <div class="invalid-feedback"><?= $email_feedback ?></div>
+                <input type="email" class="form-control <?= ($email_err ? 'is-invalid' : null) ?>" id="email" name="email" placeholder="Enter your email" autocomplete="email" required value="<?= $email ?>">
+
+                <div class="invalid-feedback"><?= $email_err ?></div>
             </div>
 
             <div class="form-group col-12">
                 <label for="password">Password</label>
 
-                <input type="password" class="form-control" id="password" name="password" placeholder="Enter a password"
-                    autocomplete="new-password" required value="<?= $password ?>">
+                <input type="password" class="form-control <?= ($password_err ? 'is-invalid' : null) ?>" id="password" name="password" placeholder="Enter a password" autocomplete="new-password" required value="<?= $password ?>">
 
-                <div class="invalid-feedback"><?= $password_feedback ?></div>
+                <div class="invalid-feedback"><?= $password_err ?></div>
             </div>
 
             <div class="form-group col-12">
                 <label for="confirm_password">Confirm Password</label>
 
-                <input type="password" class="form-control" id="confirm_password" name="confirm_password" placeholder="Confirm your password"
-                    autocomplete="off" required value="<?= $confirm_password ?>">
-                
+                <input type="password" class="form-control <?= ($password_confirm_err ? 'is-invalid' : null) ?>" id="confirm_password" name="confirm_password" placeholder="Confirm your password" autocomplete="off" required value="<?= $confirm_password ?>">
+
                 <div class="invalid-feedback">
-                    <?= $password_confirm_feedback ?>
+                    <?= $password_confirm_err ?>
                 </div>
             </div>
 

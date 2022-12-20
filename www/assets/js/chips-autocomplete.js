@@ -169,8 +169,11 @@ forms.forEach(form => {
 
         // open autocomplete menu
         function openMenu() {
-            autocompleteMenu.classList.add('show');
-            chipInput.ariaExpanded = true;
+            if (autocompleteMenu.innerHTML.length) {
+                console.log(autocompleteMenu.innerHTML);
+                autocompleteMenu.classList.add('show');
+                chipInput.ariaExpanded = true;
+            }
         }
 
         // handle chip text input
@@ -191,7 +194,7 @@ forms.forEach(form => {
         chipInput.addEventListener('focus', async e => {
             if (e.target.value.trim().length) {
                 await updateAutocompleteOptions();
-                openMenu();
+                
             } else {
                 resetInputAndCloseMenu();
             }
