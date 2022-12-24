@@ -28,6 +28,8 @@
     <link rel="stylesheet" type="text/css" media="screen" href="/assets/css/<?= $file ?>.css">
     <?php } ?>
 
+    <?= $page_head_before_js ?? '' ?>
+
     <!-- Bootstrap JavaScript libraries -->
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"
         integrity="sha384-oBqDVmMz9ATKxIep9tiCxS/Z9fNfEXiDAYTujMAeBAsjFuCZSmKbSSUnQlmh/jp3" crossorigin="anonymous"
@@ -40,6 +42,8 @@
     <!-- Custom JS -->
     <script src="/assets/js/<?= $file ?>.js" defer></script>
     <?php } ?>
+
+    <?= $page_head_after_js ?? '' ?>
 </head>
 
 <body>
@@ -61,6 +65,8 @@
             <?php require_once($_SERVER['DOCUMENT_ROOT'] . '/../views/partials/footer.php'); ?>
         </footer>
     </div>
+
+    <?= $page_end_js ?? '' ?>
 </body>
 
 </html>

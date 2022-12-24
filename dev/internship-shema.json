@@ -1,0 +1,74 @@
+{
+    "description": {
+        "type": "string"
+    },
+    "qualifications": {
+        "type": "array<string>"
+    },
+    "responsibilities": {
+        "type": "array<string>"
+    },
+    "tags": {
+        "type": "array<string>"
+    },
+    "role": {
+        "position_name": {
+            "type": "string"
+        },
+        "domain": {
+            "type": "string"
+        },
+        "skills_required": {
+            "type": "array<string>"
+        },
+        "skills_learnable": {
+            "type": "array<string>"
+        }
+    },
+    "workplace": {
+        "mode": {
+            "type": "enum (remote, in-person, hybrid)"
+        },
+        "organization": {
+            "type": "string"
+        },
+        "location": {
+            "city": {
+                "type": "string"
+            },
+            "state": {
+                "type": "string"
+            },
+            "country": {
+                "type": "string"
+            }
+        }
+    },
+    "compensation": {
+        "hourly_pay": {
+            "type": "float",
+            "unit": "USD"
+        },
+        "has_bonus": {
+            "type": "boolean"
+        }
+    },
+    "time_commitment": {
+        "schedule": {
+            "type": "enum (full-time, part-time, flexible, project-based)"
+        },
+        "duration": {
+            "type": "integer",
+            "unit": "months"
+        },
+        "start_date": {
+            "type": "date"
+        },
+        "hours_per_week": {
+            "type": "integer"
+        },
+        "days_per_week": {
+            "type": "integer"
+        }
+    }
+}

@@ -3,10 +3,56 @@ const forms = document.querySelectorAll('form');
 forms.forEach(form => {
     const chipsAutocompleteDivs = form.querySelectorAll('.chips-autocomplete');
     chipsAutocompleteDivs.forEach(chipsAutocompleteDiv => {
-        const chipInput = chipsAutocompleteDiv.querySelector('.chip-input');
-        const selectedOptionsText = chipsAutocompleteDiv.querySelector('.selected-options');
-        const autocompleteMenu = chipsAutocompleteDiv.querySelector('.autocomplete-menu');
+        // add dropdown class
+        chipsAutocompleteDiv.classList.add('dropdown');
+        // create children
+        {
+            // selected options element
+            const selectedOptionsText = document.createElement('input');
+            selectedOptionsText.classList.add('selected-options');
+            selectedOptionsText.setAttribute('type', 'hidden');
+            selectedOptionsText.setAttribute('name', chipsAutocompleteDiv.dataset.name);
+            chipsAutocompleteDiv.appendChild(selectedOptionsText);
+            // chip container element
+            const chipContainer = document.createElement('div');
+            chipContainer.classList.add('chip-container');
+            chipsAutocompleteDiv.appendChild(chipContainer);
+            // chip input element
+            const chipInput = document.createElement('input');
+            chipInput.classList.add('chip-input');
+            chipInput.classList.add('dropdown-toggle');
+            chipInput.dataset.bsToggle = 'dropdown';
+            chipInput.setAttribute('type', 'text');
+            chipInput.setAttribute('autocomplete', 'off');
+            chipInput.setAttribute('spellcheck', 'false');
+            chipInput.setAttribute('autocapitalize', 'off');
+            chipInput.setAttribute('autocorrect', 'off');
+            chipInput.setAttribute('aria-autocomplete', 'list');
+            chipInput.setAttribute('aria-haspopup', 'true');
+            chipInput.setAttribute('aria-expanded', 'false');
+            chipInput.setAttribute('aria-owns', 'autocomplete-menu');
+            chipInput.setAttribute('aria-controls', 'autocomplete-menu');
+            const placeholder = chipsAutocompleteDiv.dataset.placeholder;
+            if (placeholder) {
+                chipInput.setAttribute('placeholder', placeholder);
+            }
+            chipsAutocompleteDiv.appendChild(chipInput);
+            // autocomplete menu element
+            const autocompleteMenu = document.createElement('ul');
+            autocompleteMenu.classList.add('autocomplete-menu');
+            autocompleteMenu.classList.add('dropdown-menu');
+            chipsAutocompleteDiv.appendChild(autocompleteMenu);
+        }
+        const selectMatchOnly = chipsAutocompleteDiv.dataset.selectMatchOnly !== undefined;
+        const selectSingle = chipsAutocompleteDiv.dataset.selectSingle !== undefined;
+        const initialValue = chipsAutocompleteDiv.dataset.initialValue || '';
+        const required = chipsAutocompleteDiv.dataset.required !== undefined;
+
+        const selectedOptionsText = chipsAutocompleteDiv.querySelector('input[type="hidden"]');
+        selectedOptionsText.toggleAttribute('required', required);
         const chipContainer = chipsAutocompleteDiv.querySelector('.chip-container');
+        const chipInput = chipsAutocompleteDiv.querySelector('input.chip-input');
+        const autocompleteMenu = chipsAutocompleteDiv.querySelector('.autocomplete-menu');
 
         // create chip from chip label
         function createChipElement(chipLabel) {
@@ -42,7 +88,11 @@ forms.forEach(form => {
         function selectOption(option) {
             const selectedOptions = selectedOptionsText.value.split(',')
                 .filter(selectedOption => selectedOption !== '');
-            selectedOptions.push(option.trim());
+            if (selectSingle && selectedOptions.length > 0) {
+                selectedOptions[0] = option.trim();
+            } else {
+                selectedOptions.push(option.trim());
+            }
             selectedOptions.filter(selectedOption => selectedOption !== '');
             selectedOptionsText.value = selectedOptions.join(',');
             resetInputAndCloseMenu();
@@ -61,7 +111,14 @@ forms.forEach(form => {
 
         // post-process update of selected options
         function postProcessUpdateSelectedOptions() {
-            setCookie(selectedOptionsText.name, selectedOptionsText.value, 7, '/');
+            if (typeof setCookie === 'function') {
+                setCookie(
+                    selectedOptionsText.name,
+                    selectedOptionsText.value,
+                    7,
+                    window.location.pathname
+                );
+            }
             updateChips();
             chipInput.dispatchEvent(new Event('input'));
         }
@@ -85,9 +142,16 @@ forms.forEach(form => {
 
         // update chips when document is ready
         document.addEventListener('DOMContentLoaded', () => {
-            const cookieValue = getCookie(selectedOptionsText.name);
-            if (cookieValue) {
-                selectedOptionsText.value = cookieValue;
+            if (typeof getCookie === 'function') {
+                const cookieValue = getCookie(selectedOptionsText.name);
+                if (cookieValue) {
+                    selectedOptionsText.value = cookieValue;
+                }
+            } else if (initialValue) {
+                selectedOptionsText.value = initialValue;
+            }
+            if (selectSingle && selectedOptionsText.value.split(',').length > 1) {
+                selectedOptionsText.value = selectedOptionsText.value.split(',')[0];
             }
             updateChips();
         });
@@ -109,37 +173,49 @@ forms.forEach(form => {
 
         // get autocomplete options
         async function getAutocompleteOptions() {
-            const value = chipInput.value.trim();
-            if (value.length === 0) {
-                return [];
-            }
-            // if countries field, use restcountries.com API
-            if (selectedOptionsText.name === 'countries') {
-                const url = `https://restcountries.com/v3.1/name/${value.trim().toLowerCase()}`;
-                const response = await fetch(url);
-                const countries = await response.json();
-                const options = countries
-                    .filter(country =>
-                        country !== undefined &&
-                        country.name !== undefined &&
-                        country.name.common !== undefined &&
-                        country.name.common.toLowerCase().startsWith(value.trim().toLowerCase()))
-                    .map(country => country.name.common);
-                return options;
-            }
-            // other fields
-            else {
-                const baseUrl = '/';
-                const params = new URLSearchParams({
-                    search: 'live',
-                    field: selectedOptionsText.name,
-                    value: value
-                });
-                const url = baseUrl + '?' + params.toString();
+            try {
+                const value = chipInput.value.trim();
+                if (value.length === 0) {
+                    return [];
+                }
+                // if countries field, use restcountries.com API
+                if (selectedOptionsText.name === 'countries' || selectedOptionsText.name === 'countries[]' || selectedOptionsText.name === 'country') {
+                    const url = `https://restcountries.com/v3.1/name/${value.trim().toLowerCase()}`;
+                    const response = await fetch(url);
+                    const countries = await response.json();
+                    const options = countries
+                        .filter(country =>
+                            country !== undefined &&
+                            country.name !== undefined &&
+                            country.name.common !== undefined &&
+                            country.name.common.toLowerCase().startsWith(value.trim().toLowerCase()))
+                        .map(country => country.name.common);
+                    return options;
+                }
+                // other fields
+                else {
+                    const baseUrl = window.location.pathname;
+                    const params = new URLSearchParams({
+                        search: 'live',
+                        field: selectedOptionsText.name,
+                        value: value
+                    });
+                    const url = baseUrl + '?' + params.toString();
 
-                const response = await fetch(url);
-                const { options } = await response.json();
-                return options;
+                    const response = await fetch(url);
+                    if (!response.ok) {
+                        return [];
+                    }
+                    const json = await response.json();
+                    console.log('json: ' + json);
+                    if (!json || json.error) {
+                        return [];
+                    }
+                    return json.options || [];
+                }
+            } catch (error) {
+                console.error('error: ' + JSON.stringify(error));
+                return [];
             }
         }
 
@@ -147,7 +223,7 @@ forms.forEach(form => {
         async function filterAutocompleteOptions() {
             const autocompleteOptions = await getAutocompleteOptions();
             const selectedOptions = selectedOptionsText.value.split(',');
-            const chipInputValue = chipInput.value;
+            const chipInputValue = chipInput.value.trim();
             const filteredAutocompleteOptions
                 = autocompleteOptions.filter(autocompleteOption => {
                     return !selectedOptions.includes(autocompleteOption) &&
@@ -155,6 +231,9 @@ forms.forEach(form => {
                             .toLowerCase()
                             .startsWith(chipInputValue.toLowerCase());
                 });
+            if (!selectMatchOnly && chipInputValue.length > 0 && !filteredAutocompleteOptions.includes(chipInputValue) && !selectedOptions.includes(chipInputValue)) {
+                filteredAutocompleteOptions.unshift(chipInputValue);
+            }
             return filteredAutocompleteOptions;
         }
 
@@ -202,7 +281,7 @@ forms.forEach(form => {
         chipInput.addEventListener('focus', async e => {
             if (e.target.value.trim().length) {
                 await updateAutocompleteOptions();
-                
+
             } else {
                 resetInputAndCloseMenu();
             }
@@ -226,7 +305,16 @@ forms.forEach(form => {
             // check and add chip on enter key
             if (e.key === 'Enter') {
                 e.preventDefault();
-                const value = e.target.value;
+                const value = e.target.value.trim();
+                if (!value.length) {
+                    return;
+                }
+                if (!selectMatchOnly) {
+                    selectOption(value);
+                    resetInputAndCloseMenu();
+                    chipInput.focus();
+                    return;
+                }
                 const options = await filterAutocompleteOptions();
                 const matching = options.filter(option => option.toLowerCase() === value.toLowerCase());
                 if (matching.length) {
@@ -244,7 +332,6 @@ forms.forEach(form => {
                     chipInput.focus();
                 }
             }
-
             // handle up and down arrow keys
             else if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
                 e.preventDefault();

@@ -72,7 +72,7 @@ echo render('signup-employer-view', [
     'page_title' => 'Employer Sign-up',
     'page_description' => 'Sign up as an employer',
     'page_layout' => 'auth',
-    'page_url' => '/signup-employer/index.php',
+    'page_url' => '/signup-employer/',
 
     'name' => $name,
     'email' => $email,

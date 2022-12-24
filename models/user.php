@@ -90,20 +90,16 @@ function validate_confirm_password($password, $confirm_password)
 // db query functions
 // ===========================================
 
-// format query string to get user by email from any table
-$format_get_by_email = <<<SQL
-    SELECT * 
-    FROM %s
-    WHERE email = ?
-SQL;
-
 // get student by email
 function get_student_by_email($email)
 {
     global $mysqli;
-    global $format_get_by_email;
 
-    $query = sprintf($format_get_by_email, 'Student');
+    $query = <<<SQL
+    SELECT *
+    FROM Student
+    WHERE student_email = ?
+SQL;
 
     $stmt = $mysqli->prepare($query);
     $stmt->bind_param('s', $email);
@@ -111,7 +107,7 @@ function get_student_by_email($email)
 
     $result = $stmt->get_result();
     $stmt->close();
-    
+
     $student = $result->fetch_assoc();
     return [
         'data' => $student,
@@ -123,9 +119,13 @@ function get_student_by_email($email)
 function get_organization_by_email($email)
 {
     global $mysqli;
-    global $format_get_by_email;
 
-    $query = sprintf($format_get_by_email, 'Organization');
+    $query = <<<SQL
+    SELECT *
+    FROM Organization
+    WHERE organization_email = ?
+SQL;
+
     $stmt = $mysqli->prepare($query);
     $stmt->bind_param('s', $email);
     $stmt->execute();
@@ -162,9 +162,9 @@ function check_no_user_exists($email)
     $user = get_user_by_email($email);
     return [
         'data' => !$user['data'],
-        'error' => ($user['data'] 
-        ? 'User with email already exists. <a href="/signin">Sign in</a> instead?' 
-        : '')
+        'error' => ($user['data']
+            ? 'User with email already exists. <a href="/signin">Sign in</a> instead?'
+            : '')
     ];
 }
 
@@ -189,24 +189,20 @@ function authenticate_user($email, $password)
     ];
 }
 
-// format query string to insert user into any table
-$format_create_user = <<<SQL
-    INSERT INTO %s (name, email, password)
-    VALUES (?, ?, ?)
-SQL;
-
 // create student
 function create_student($name, $email, $password)
 {
     global $mysqli;
-    global $format_create_user;
 
-    $query = sprintf($format_create_user, 'Student');
+    $query = <<<SQL
+    INSERT INTO Student (name, student_email, password)
+    VALUES (?, ?, ?)
+SQL;
 
     $stmt = $mysqli->prepare($query);
     $stmt->bind_param('sss', $name, $email, $password);
     $stmt->execute();
-    
+
     $stmt->close();
 
     $error = ($mysqli->error ? $mysqli->error : '');
@@ -218,16 +214,19 @@ function create_student($name, $email, $password)
 }
 
 // create organization
-function create_organization($name, $email, $password)
+function create_organization($name, $email, $password, $logo_path = '')
 {
     global $mysqli;
-    global $format_create_user;
 
-    $query = sprintf($format_create_user, 'Organization');
+    $query = <<<SQL
+    INSERT INTO Organization (name, organization_email, password, logo_path)
+    VALUES (?, ?, ?, ?)
+SQL;
+
     $stmt = $mysqli->prepare($query);
-    $stmt->bind_param('sss', $name, $email, $password);
+    $stmt->bind_param('ssss', $name, $email, $password, $logo_path);
     $stmt->execute();
-    
+
     $error = ($mysqli->error ? $mysqli->error : '');
     $data = $error ? null : $mysqli->insert_id;
     return [

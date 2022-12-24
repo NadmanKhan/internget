@@ -38,7 +38,7 @@ echo render('signin-view', [
     'page_title' => 'Sign in',
     'page_description' => 'Sign in to your account',
     'page_layout' => 'auth',
-    'page_url' => '/signin/index.php',
+    'page_url' => '/signin/',
 
     'email' => $email,
     'password' => $password,

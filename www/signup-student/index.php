@@ -73,7 +73,7 @@ echo render('signup-student-view', [
     'page_title' => 'Student Sign-up',
     'page_description' => 'Sign up as a student',
     'page_layout' => 'auth',
-    'page_url' => '/signup-student/index.php',
+    'page_url' => '/signup-student/',
 
     'name' => $name,
     'email' => $email,
