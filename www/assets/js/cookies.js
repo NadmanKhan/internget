@@ -1,11 +1,12 @@
 // set/update cookie
-function setCookie(name, value, days = 7, path = '/') {
+function setCookie(name, value, options = {}) {
   let expires = '';
-  if (days) {
+  if (options.days) {
     const date = new Date();
-    date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+    date.setTime(date.getTime() + (options.days * 24 * 60 * 60 * 1000));
     expires = '; expires=' + date.toUTCString();
   }
+  const path = options.path || '/';
   document.cookie = `${name}=${value || ''}${expires}; path=${path}; SameSite=Lax`;
 }
 

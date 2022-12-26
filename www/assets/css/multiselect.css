@@ -1,0 +1,132 @@
+.multiselect {
+    /* to look and behave like bootstrap input */
+    display: block;
+    cursor: text;
+    width: 100%;
+    padding: .375rem .75rem;
+    font-size: 1rem;
+    font-weight: 400;
+    line-height: 1.5;
+    color: #212529;
+    background-color: #fff;
+    background-clip: padding-box;
+    border: 1px solid #ced4da;
+    appearance: none;
+    border-radius: .375rem;
+    transition: border-color .15s ease-in-out, box-shadow .15s ease-in-out;
+    /* make it a flexbox */
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.multiselect::-ms-expand {
+    background-color: transparent;
+    border: 0;
+}
+
+.multiselect:focus-within {
+    color: #495057;
+    background-color: #fff;
+    border-color: #80bdff;
+    outline: 0;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+.multiselect::placeholder {
+    color: #6c757d;
+    opacity: 1;
+}
+
+.multiselect:disabled,
+.multiselect[readonly] {
+    background-color: #e9ecef;
+    opacity: 1;
+}
+
+.multiselect .chips {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.multiselect .chip {
+    display: flex;
+    flex: row nowrap;
+    align-items: center;
+    width: fit-content;
+    gap: 0.2rem;
+    padding: 0.2rem 0.5rem;
+    margin: 0.2rem;
+    border-radius: 0.5rem;
+    background-color: #e9ecef;
+    color: #212529;
+}
+
+.multiselect .chip .chip-label {
+    margin-right: 0.25rem;
+    white-space: nowrap;
+}
+
+.multiselect .chip .chip-close {
+    display: flex;
+    flex: row nowrap;
+    align-items: center;
+    justify-content: center;
+    gap: 0.2rem;
+    padding: 0.2rem 0.5rem;
+    border-radius: 0.5rem;
+    background-color: #e9ecef;
+    color: #212529;
+}
+
+.multiselect .chip .chip-close:hover {
+    background-color: darkgray;
+    color: white;
+    cursor: pointer;
+}
+
+.multiselect .chip .chip-close:focus {
+    background-color: rgb(209, 98, 98);
+    color: white;
+}
+
+.multiselect .chip .chip-close:focus-visible {
+    background-color: rgb(209, 98, 98);
+    color: white;
+}
+
+.multiselect .chip .chip-close:active {
+    background-color: rgb(209, 98, 98);
+    color: white;
+}
+
+.multiselect .chip .chip-close:disabled {
+    background-color: #e9ecef;
+    color: #212529;
+}
+
+.multiselect .chip .chip-close:disabled:hover {
+    background-color: #e9ecef;
+    color: #212529;
+}
+
+.multiselect .chip .chip-close:disabled:focus {
+    background-color: #e9ecef;
+    color: #212529;
+}
+
+.multiselect input {
+    border: none;
+    outline: none;
+    background: none;
+    padding: 0;
+    margin: 0;
+    font-size: 1rem;
+    font-family: inherit;
+    color: inherit;
+}
+
+.multiselect input:focus {
+    outline: none;
+}

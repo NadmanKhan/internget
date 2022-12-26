@@ -6,7 +6,7 @@ require_once($_SERVER['DOCUMENT_ROOT'] . '/../models/user.php');
 require_once($_SERVER['DOCUMENT_ROOT'] . '/../helpers/render.php');
 
 if (isset($_SESSION['user'])) {
-    echo render_error_page(403, 'You are already signed in. Please sign out first.');
+    echo respond_error_page(403, 'You are already signed in. Please sign out first.');
     return;
 }
 
@@ -70,16 +70,19 @@ $password = $confirm_password = '';
 
 RENDER:
 echo render('signup-student-view', [
-    'page_title' => 'Student Sign-up',
-    'page_description' => 'Sign up as a student',
-    'page_layout' => 'auth',
-    'page_url' => '/signup-student/',
-
-    'name' => $name,
-    'email' => $email,
-    'name_err' => $name_err,
-    'email_err' => $email_err,
-    'password_err' => $password_err,
-    'confirm_password_err' => $confirm_password_err,
-    'main_err' => $main_err,
+    'page' => [
+        'title' => 'Student Sign-up',
+        'description' => 'Sign up as a student',
+        'layout' => 'auth',
+        'url' => '/signup-student/',
+    ],
+    'data' => [
+        'name' => $name,
+        'email' => $email,
+        'name_err' => $name_err,
+        'email_err' => $email_err,
+        'password_err' => $password_err,
+        'confirm_password_err' => $confirm_password_err,
+        'main_err' => $main_err,
+    ],
 ]);

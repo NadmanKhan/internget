@@ -6,7 +6,7 @@ require_once($_SERVER['DOCUMENT_ROOT'] . '/../models/user.php');
 require_once($_SERVER['DOCUMENT_ROOT'] . '/../helpers/render.php');
 
 if (isset($_SESSION['email'])) {
-    echo render_error_page(403, 'You are already signed in. Please sign out first.');
+    echo respond_error_page(403, 'You are already signed in. Please sign out first.');
     return;
 }
 
@@ -35,15 +35,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 $password = '';
 
 echo render('signin-view', [
-    'page_title' => 'Sign in',
-    'page_description' => 'Sign in to your account',
-    'page_layout' => 'auth',
-    'page_url' => '/signin/',
-
-    'email' => $email,
-    'password' => $password,
-    'email_err' => $email_err,
-    'password_err' => $password_err,
-    'main_err' => $main_err,
+    'page' => [
+        'title' => 'Sign in',
+        'description' => 'Sign in to your account',
+        'layout' => 'auth',
+        'url' => '/signin/',
+    ],
+    'data' => [
+        'email' => $email,
+        'password' => $password,
+        'email_err' => $email_err,
+        'password_err' => $password_err,
+        'main_err' => $main_err,
+    ],
 ]);
-

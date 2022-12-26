@@ -291,12 +291,12 @@ function get_internship_by_id($internship_id)
         GROUP_CONCAT(DISTINCT t.tag_name SEPARATOR ',') AS tags,
         GROUP_CONCAT(DISTINCT d.domain_name SEPARATOR ',') AS domains
     FROM Internship i
-    LEFT JOIN Internship_Tag it ON it.internship_id = i.id
-    LEFT JOIN Tag t ON t.id = it.tag_id
-    LEFT JOIN Internship_Domain id ON id.internship_id = i.id
-    LEFT JOIN Domain d ON d.id = id.domain_id
-    WHERE i.id = ?
-    GROUP BY i.id
+    LEFT JOIN InternshipTag i_t ON i_t.internship_id = i.internship_id
+    LEFT JOIN Tag t ON t.tag_name = i_t.tag_name
+    LEFT JOIN InternshipDomain i_d ON i_d.internship_id = i.internship_id
+    LEFT JOIN Domain d ON d.domain_name = i_d.domain_name
+    WHERE i.internship_id = ?
+    GROUP BY i.internship_id
 SQL;
 
     $stmt = $mysqli->prepare($query);

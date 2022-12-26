@@ -1,35 +1,55 @@
 <?php
 
-function render($view, $data = []): bool|string
+function render($view, $options = []): bool|string
 {
+    // separate the options into page and data
+    $page = $options['page'] ?? [];
+    $data = $options['data'] ?? [];
+
     // get the view file path
     $path_to_view = $_SERVER['DOCUMENT_ROOT'] . '/../views/' . $view . '.php';
-    if (file_exists($path_to_view)) {
-        extract($data);
-        ob_start();
-        // if a page layout is specified, use it
-        if (isset($page_layout)) {
-            require_once($path_to_view);
-            $page_content = ob_get_clean();
-            $path_to_layout = $_SERVER['DOCUMENT_ROOT'] . '/../views/layouts/' .
-                $page_layout . '.php';
-            if (file_exists($path_to_layout)) {
-                require_once($path_to_layout);
-            } else {
-                die('Layout not found: ' . $path_to_layout);
-            }
-        }
-        // otherwise, just render the view
-        else {
-            require_once($view);
-        }
-        return ob_get_clean();
-    } else {
+
+    // if the specified view file does not exist, die with an error message
+    if (!file_exists($path_to_view)) {
         die('View not found: ' . $path_to_view);
     }
+
+    // view file exists, so render its content
+
+    // extract data into variables
+    extract($data);
+
+    // start output buffering
+    ob_start();
+
+    // if a page layout is specified, use it
+    if (isset($page['layout'])) {
+
+        require_once($path_to_view);
+        $page['content'] = ob_get_clean();
+
+        $path_to_layout = $_SERVER['DOCUMENT_ROOT'] . '/../views/layouts/' .
+            $page['layout'] . '.php';
+
+        // if the specified layout file does not exist, die with an error message
+        if (!file_exists($path_to_layout)) {
+            die('Layout not found: ' . $path_to_layout);
+        }
+
+        require_once($path_to_layout);
+    }
+    // otherwise, just render the view
+    else {
+        require_once($view);
+    }
+
+    // return the render content from the buffer and stop buffering
+    $result = ob_get_clean();
+    ob_end_clean();
+    return $result;
 }
 
-function render_error_page($error_code, $error_message): bool|string
+function respond_error_page($error_code, $error_message): bool|string
 {
     // set the response status code
     http_response_code($error_code);
@@ -37,11 +57,14 @@ function render_error_page($error_code, $error_message): bool|string
 
     // render the error page
     return render('error-view', [
-        'page_layout' => 'default',
-        'page_title' => 'Error ' . $error_code,
-        'page_description' => 'Error',
-
-        'error_code' => $error_code,
-        'error_message' => $error_message
+        'page' => [
+            'layout' => 'default',
+            'title' => 'Error ' . $error_code,
+            'description' => 'Error'
+        ],
+        'data' => [
+            'error_code' => $error_code,
+            'error_message' => $error_message
+        ],
     ]);
 }

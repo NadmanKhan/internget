@@ -6,7 +6,7 @@ require_once($_SERVER['DOCUMENT_ROOT'] . '/../helpers/render.php');
 require_once($_SERVER['DOCUMENT_ROOT'] . '/../models/internship.php');
 
 if (!isset($_SESSION['user'])) {
-    render_error_page(403, 'You must be signed in as an employer (organization) to create an internship');
+    respond_error_page(403, 'You must be signed in as an employer (organization) to create an internship');
     exit;
 }
 
@@ -155,7 +155,7 @@ if (isset($_GET['search']) && $_GET['search'] === 'live') {
 
         $has_bonus = $has_bonus === 'true' ? true : false;
         $start_date = $start_date ? date('Y-m-d', strtotime($start_date)) : '';
-        
+
         $organization_email = $_SESSION['user']['email'];
 
         list(
@@ -175,15 +175,12 @@ if (isset($_GET['search']) && $_GET['search'] === 'live') {
 }
 
 echo render('internship-form-view', [
-    'page_layout' => 'default',
-    'page_title' => 'Create Internship',
-    'page_description' => 'Create Internship',
-    'page_url' => '/internship/create/',
-    'page_css' => ['chips-autocomplete'],
-    'page_js' => ['chips-autocomplete'],
-    'page_head_before_js' => <<<HTML
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.css">
-    <script src="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.js"></script>
-HTML,
-
+    'page' => [
+        'layout' => 'default',
+        'title' => 'Create Internship',
+        'description' => 'Create Internship',
+        'url' => '/internship/create/',
+        'css_files' => ['/assets/css/multiselect.css'],
+        'js_files' => ['/assets/js/multiselect.js'],
+    ],
 ]);

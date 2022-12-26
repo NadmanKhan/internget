@@ -6,7 +6,7 @@ require_once($_SERVER['DOCUMENT_ROOT'] . '/../models/user.php');
 require_once($_SERVER['DOCUMENT_ROOT'] . '/../helpers/render.php');
 
 if (!empty($_SESSION)) {
-    echo render_error_page(403, 'You are already signed in. Please sign out first.');
+    echo respond_error_page(403, 'You are already signed in. Please sign out first.');
     return;
 }
 
@@ -60,7 +60,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         if ($main_err === '') {
             header('Location: http://localhost/signin');
-            return;        
+            return;
         }
     }
 }
@@ -69,15 +69,18 @@ $password = $confirm_password = '';
 
 RENDER:
 echo render('signup-employer-view', [
-    'page_title' => 'Employer Sign-up',
-    'page_description' => 'Sign up as an employer',
-    'page_layout' => 'auth',
-    'page_url' => '/signup-employer/',
-
-    'name' => $name,
-    'email' => $email,
-    'name_err' => $name_err,
-    'email_err' => $email_err,
-    'password_err' => $password_err,
-    'confirm_password_err' => $confirm_password_err
+    'page' => [
+        'title' => 'Employer Sign-up',
+        'description' => 'Sign up as an employer',
+        'layout' => 'auth',
+        'url' => '/signup-employer/',
+    ],
+    'data' => [
+        'name' => $name,
+        'email' => $email,
+        'name_err' => $name_err,
+        'email_err' => $email_err,
+        'password_err' => $password_err,
+        'confirm_password_err' => $confirm_password_err,
+    ],
 ]);
