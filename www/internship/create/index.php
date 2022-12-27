@@ -158,11 +158,6 @@ if (isset($_GET['search']) && $_GET['search'] === 'live') {
 
         $organization_email = $_SESSION['user']['email'];
 
-        list(
-            'data' => $internship_id,
-            'error' => $internship_id_error
-        ) = create_internship($position, $organization_email, $description, $qualifications, $responsibilities, $application_process, $contact_details, $tags, $domains, $workplace_mode, $city, $country, $hourly_pay, $has_bonus, $schedule, $start_date, $duration, $hours_per_week, $days_per_week);
-
         if ($internship_id_error) {
             $error = $internship_id_error;
         } else {
@@ -180,7 +175,7 @@ echo render('internship-form-view', [
         'title' => 'Create Internship',
         'description' => 'Create Internship',
         'url' => '/internship/create/',
-        'css_files' => ['/assets/css/multiselect.css'],
-        'js_files' => ['/assets/js/multiselect.js'],
+        'css_sources' => ['/assets/css/multiselect.css'],
+        'js_sources' => ['/assets/js/multiselect.js'],
     ],
 ]);

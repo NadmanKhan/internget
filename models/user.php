@@ -20,7 +20,7 @@ function validate_name($name)
     }
 
     if ($error === '') {
-        $name = htmlspecialchars(trim($name));
+        $name = trim($name);
     }
 
     return [
@@ -98,7 +98,7 @@ function get_student_by_email($email)
     $query = <<<SQL
     SELECT *
     FROM Student
-    WHERE student_email = ?
+    WHERE email = ?
 SQL;
 
     $stmt = $mysqli->prepare($query);
@@ -123,7 +123,7 @@ function get_organization_by_email($email)
     $query = <<<SQL
     SELECT *
     FROM Organization
-    WHERE organization_email = ?
+    WHERE email = ?
 SQL;
 
     $stmt = $mysqli->prepare($query);
@@ -141,52 +141,74 @@ SQL;
 // get user by email
 function get_user_by_email($email)
 {
-    $user = get_student_by_email($email);
-    if ($user) {
-        $user['type'] = 'student';
+    list(
+        'data' => $student,
+        'error' => $student_error
+    ) = get_student_by_email($email);
+    list(
+        'data' => $organization,
+        'error' => $organization_error
+    ) = get_organization_by_email($email);
+    if ($student || $organization) {
+        $user = $student ? $student : $organization;
+        $user['type'] = $student ? 'student' : 'organization';
+        return [
+            'data' => $user,
+            'error' => null
+        ];
     } else {
-        $user = get_organization_by_email($email);
-        if ($user) {
-            $user['type'] = 'organization';
-        }
+        return [
+            'data' => null,
+            'error' => 'User with email does not exist'
+        ];
     }
-    return [
-        'data' => $user['data'],
-        'error' => ($user ? '' : 'User with email does not exist')
-    ];
 }
 
 // check no user with email exists
 function check_no_user_exists($email)
 {
-    $user = get_user_by_email($email);
-    return [
-        'data' => !$user['data'],
-        'error' => ($user['data']
-            ? 'User with email already exists. <a href="/signin">Sign in</a> instead?'
-            : '')
-    ];
+    list(
+        'data' => $user,
+        'error' => $user_error
+    ) = get_user_by_email($email);
+    if ($user) {
+        return [
+            'data' => false,
+            'error' => 'User with email already exists'
+        ];
+    } else {
+        return [
+            'data' => true,
+            'error' => null
+        ];
+    }
 }
 
 // authenticate user
 function authenticate_user($email, $password)
 {
-    $user = get_user_by_email($email);
-    $error = '';
-    if ($user['data']) {
-        $user = $user['data'];
-        var_dump($user);
-        var_dump($password);
-        if (!password_verify($password, $user['password'])) {
-            $error = 'Incorrect password';
+    list(
+        'data' => $user,
+        'error' => $user_error
+    ) = get_user_by_email($email);
+    if ($user) {
+        if (password_verify($password, $user['password'])) {
+            return [
+                'data' => $user,
+                'error' => null
+            ];
+        } else {
+            return [
+                'data' => null,
+                'error' => 'Incorrect password'
+            ];
         }
     } else {
-        $error = $user['error'];
+        return [
+            'data' => null,
+            'error' => 'User with email does not exist'
+        ];
     }
-    return [
-        'data' => $user,
-        'error' => $error
-    ];
 }
 
 // create student
@@ -195,7 +217,7 @@ function create_student($name, $email, $password)
     global $mysqli;
 
     $query = <<<SQL
-    INSERT INTO Student (name, student_email, password)
+    INSERT INTO Student (name, email, password)
     VALUES (?, ?, ?)
 SQL;
 
@@ -206,9 +228,9 @@ SQL;
     $stmt->close();
 
     $error = ($mysqli->error ? $mysqli->error : '');
-    $data = $error ? null : $mysqli->insert_id;
+    $insert_id = $error ? null : $mysqli->insert_id;
     return [
-        'data' => $data,
+        'data' => $insert_id,
         'error' => $error
     ];
 }
@@ -219,7 +241,7 @@ function create_organization($name, $email, $password, $logo_path = '')
     global $mysqli;
 
     $query = <<<SQL
-    INSERT INTO Organization (name, organization_email, password, logo_path)
+    INSERT INTO Organization (name, email, password, logo_path)
     VALUES (?, ?, ?, ?)
 SQL;
 
@@ -228,9 +250,9 @@ SQL;
     $stmt->execute();
 
     $error = ($mysqli->error ? $mysqli->error : '');
-    $data = $error ? null : $mysqli->insert_id;
+    $insert_id = $error ? null : $mysqli->insert_id;
     return [
-        'data' => $data,
+        'data' => $insert_id,
         'error' => $error
     ];
 }

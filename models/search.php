@@ -1,29 +1,18 @@
 <?php
 
+require_once($_SERVER['DOCUMENT_ROOT'] . '/../config/db.php');
+
 
 function n_question_marks($n)
 {
     return implode(',', array_fill(0, $n, '?'));
 }
 
-
-function search(
-    $tags,
-    $positions,
-    $domains,
-    $workplace_mode,
-    $orgs,
-    $locations,
-    $has_bonus,
-    $min_pay,
-    $start_date_min,
-    $start_date_max,
-    $duration_min,
-    $duration_max,
-    $days_per_week_min,
-    $days_per_week_max,
-) {
+/*
+function search_internships($vars = []) {
     global $mysqli;
+
+    extract($vars);
 
     $query = <<<SQL
     SELECT
@@ -76,6 +65,8 @@ function search(
         AND i.duration <= ?
         AND i.days_per_week >= ?
         AND i.days_per_week <= ?
+        AND i.hours_per_week >= ?
+        AND i.hours_per_week <= ?
 SQL;
 
     $query = sprintf(
@@ -93,7 +84,7 @@ SQL;
 
     $stmt->bind_param(
         str_repeat('s', count($positions) + count($orgs) + count($domains) + 
-        count($tags) + count($workplace_mode) + count($locations) * 2) . 'iiiiiiii',
+        count($tags) + count($workplace_mode) + count($locations) * 2) . 'iiiiiiiiii',
         ...$positions,
         ...$orgs,
         ...$domains,
@@ -108,7 +99,9 @@ SQL;
         $duration_min,
         $duration_max,
         $days_per_week_min,
-        $days_per_week_max
+        $days_per_week_max,
+        $hours_per_week_min,
+        $hours_per_week_max,
     );
 
     $stmt->execute();
@@ -125,4 +118,41 @@ SQL;
         'data' => $data,
         'error' => null
     ];
+}
+
+*/
+
+function get_internships($vars)
+{
+    global $mysqli;
+
+    extract($vars);
+
+    $query = <<<SQL
+    SELECT
+        i.internship_id as internship_id,
+        p.name as position,
+    FROM
+        Internship i
+    INNER JOIN
+        Position p
+    ON
+        i.position_id = p.position_id
+    WHERE
+        p.name IN(%s)
+SQL;
+    
+    $query = sprintf($query, n_question_marks(count($positions)));
+    $stmt = $mysqli->prepare($query);
+    $stmt->bind_param(str_repeat('s', count($positions)), ...$positions);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $data = $result->fetch_all(MYSQLI_ASSOC);
+
+    if ($data === false) {
+        return [
+            'data' => [],
+            'error' => 'Invalid search'
+        ];
+    }
 }

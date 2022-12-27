@@ -1,19 +1,13 @@
 <main>
-    <p id=city>
-    <p>
-    <p id=country>
-    <p>
-    <button onclick="getLocation()">Get Location</button>
-
     <section class="container-fluid justify-content-center border rounded-top">
-        <form role="form" action="/index.php" method="get">
+        <form role="form" action="<?= $page['url']; ?>" method="get">
             <section id="search_form_misc" class="row border rounded g-2 px-1 py-2 pt-0 g-1 mb-2 m-3">
                 <small class="text-secondary p-1 col-12">Miscellaneous</small>
 
                 <div class="form-group col-sm-12 col-md-12">
                     <label for="tags" class="form-label mb-0">Tags</label>
 
-                    <div class="multiselect" id="tags" data-name="tags" data-select-match-only></div>
+                    <div class="multiselect" id="tags" data-name="tags" data-match-only data-max-select="10"></div>
                 </div>
             </section>
 
@@ -23,13 +17,13 @@
                 <div class="form-group col-sm-12 col-md-6">
                     <label for="positions" class="form-label mb-0">Positions</label>
 
-                    <div class="multiselect" id="positions" data-name="positions" data-select-match-only></div>
+                    <div class="multiselect" id="positions" data-name="positions" data-match-only data-max-select="10"></div>
                 </div>
 
                 <div class="form-group col-sm-12 col-md-6">
                     <label for="domains" class="form-label mb-0">Domains of work</label>
 
-                    <div class="multiselect" id="domains" data-name="domains" data-select-match-only></div>
+                    <div class="multiselect" id="domains" data-name="domains" data-match-only data-max-select="10"></div>
                 </div>
             </section>
 
@@ -48,17 +42,17 @@
                         </div>
 
                         <div class="form-check form-check-inline">
-                            <input type="checkbox" class="form-check-input" name="workplace_mode[]" id="in_office" value="in_office" <?php if (isset($workplace_mode) && in_array('in_office', $workplace_mode))
+                            <input type="checkbox" class="form-check-input" name="workplace_mode[]" id="in_person" value="in_person" <?php if (isset($workplace_mode) && in_array('in_person', $workplace_mode))
                                                                                                                                             echo 'checked'; ?>>
 
-                            <label for="in_office" class="form-check-label">In-office</label>
+                            <label for="in_person" class="form-check-label">In-person</label>
                         </div>
 
                         <div class="form-check form-check-inline">
-                            <input type="checkbox" class="form-check-input" name="workplace_mode[]" id="hybrid" value="hybrid" <?php if (isset($workplace_mode) && in_array('hybrid', $workplace_mode))
+                            <input type="checkbox" class="form-check-input" name="workplace_mode[]" id="mixed" value="mixed" <?php if (isset($workplace_mode) && in_array('mixed', $workplace_mode))
                                                                                                                                     echo 'checked'; ?>>
 
-                            <label for="hybrid" class="form-check-label">Hybrid (both remote & in-office)</label>
+                            <label for="mixed" class="form-check-label">Mixed</label>
                         </div>
                     </div>
                 </div>
@@ -66,13 +60,13 @@
                 <div class="form-group col-sm-12 col-md-6">
                     <label for="orgs" class="form-label mb-0">Organization names</label>
 
-                    <div class="multiselect" id="orgs" data-name="orgs" data-select-match-only></div>
+                    <div class="multiselect" id="orgs" data-name="orgs" data-match-only data-max-select="10"></div>
                 </div>
 
                 <div class="form-group col-sm-12 col-md-6">
                     <label for="locations" class="form-label mb-0">Locations (city and country)</label>
 
-                    <div class="multiselect" id="locations" data-name="locations" data-select-match-only></div>
+                    <div class="multiselect" id="locations" data-name="locations" data-match-only data-max-select="2"></div>
                 </div>
             </section>
 
@@ -122,6 +116,12 @@
                             <input type="checkbox" class="form-check-input" name="work_schedule[]" id="full_time" value="full_time">
 
                             <label for="full_time" class="form-check-label">Full-time</label>
+                        </div>
+
+                        <div class="form-check form-check-inline">
+                            <input type="checkbox" class="form-check-input" name="work_schedule[]" id="flexible" value="flexible">
+
+                            <label for="flexible" class="form-check-label">Flexible</label>
                         </div>
 
                         <div class="form-check form-check-inline">
@@ -220,57 +220,11 @@
         </div>
 
         <div class="row">
-
-            <?php for ($i = 0; $i < 20; ++$i) { ?>
-                <?php
-                $internship = [
-                    'pos_name' => 'Internship Position',
-                    'org_email' => 'info@company.com',
-                    'org_name' => 'XYZ Company',
-                    'description' => <<<DESC
-                            Exercitation eiusmod dolor veniam. Enim eiusmod nulla adipisicing adipisicing cupidatat incididunt excepteur. Sint sit ad id anim ut ea nisi ad laboris esse sit dolore adipisicing proident aliqua. Incididunt amet adipisicing esse ipsum velit minim voluptate eiusmod ullamco occaecat minim ut. Anim exercitation non minim duis duis magna velit pariatur sit reprehenderit anim anim.
-
-                            Exercitation eiusmod dolor veniam. Enim eiusmod nulla adipisicing adipisicing cupidatat incididunt excepteur. Sint sit ad id anim ut ea nisi ad laboris esse sit dolore adipisicing proident aliqua. Incididunt amet adipisicing esse ipsum velit minim voluptate eiusmod ullamco occaecat minim ut. Anim exercitation non minim duis duis magna velit pariatur sit reprehenderit anim anim.
-
-                            Pariatur sit duis sunt excepteur. Dolor eiusmod cupidatat nisi sit. Ullamco magna magna ullamco dolore incididunt. Culpa sint cupidatat officia veniam minim amet sit sint commodo nulla aliqua ad qui culpa ex. Magna sit adipisicing nulla do. Aliqua adipisicing sunt aliquip veniam dolor anim consequat excepteur sint dolore.
-                            DESC,
-                    'workplace_mode' => 'remote',
-                    'hourly_pay' => 0,
-                    'start_date' => '2022-01-01',
-                    'duration' => 3,
-                    'days_per_week' => 5,
-                    'hours_per_week' => 40,
-                    'work_schedule' => 'full-time',
-                    'city' => 'New York',
-                    'country' => 'United States',
-                    'bonus' => 1,
-                    'is_open' => false,
-                ];
-                ?>
+            <?php foreach ($internships as $internship) { ?>
                 <div class="col-12 my-3">
                     <?php require($_SERVER['DOCUMENT_ROOT'] . '/../views/partials/internship-card.php'); ?>
                 </div>
             <?php } ?>
         </div>
-        </div>
     </section>
-
-    <script>
-        function getLocation() {
-            navigator.geolocation.getCurrentPosition(
-            async (position) => {
-                    const lat = position.coords.latitude;
-                    const lon = position.coords.longitude;
-                    const url = `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=en`;
-                    const response = await fetch(url);
-                    const data = await response.json();
-                    document.getElementById('city').innerHTML = data.city;
-                    document.getElementById('country').innerHTML = data.countryName;
-                },
-                (error) => {
-                    console.log(error);
-                }
-        )
-        }
-    </script>
 </main>

@@ -6,53 +6,53 @@
             <div class="form-group col-12">
                 <label for="name" class="col-lg-6">Name</label>
 
-                <input type="text" class="form-control <?= ($name_err ? 'is-invalid' : null) ?>" id="name" name="name" placeholder="Enter your full name"
+                <input type="text" class="form-control <?= ($name_error ? 'is-invalid' : null) ?>" id="name" name="name" placeholder="Enter your full name"
                     autocomplete="name" value="<?= $name ?>" required>
 
                 <div class="invalid-feedback">
-                    <?= $name_err ?>
+                    <?= $name_error ?>
                 </div>
             </div>
 
             <div class="form-group col-12">
                 <label for="email">Email address</label>
 
-                <input type="email" class="form-control <?= ($email_err ? 'is-invalid' : null) ?>" id="email" name="email" placeholder="Enter your email"
+                <input type="email" class="form-control <?= ($email_error ? 'is-invalid' : null) ?>" id="email" name="email" placeholder="Enter your email"
                     autocomplete="email" value="<?= $email ?>" required>
 
                 <div class="invalid-feedback">
-                    <?= $email_err ?>
+                    <?= $email_error ?>
                 </div>
             </div>
 
             <div class="form-group col-12">
                 <label for="password">Password</label>
 
-                <input type="password" class="form-control <?= ($password_err ? 'is-invalid' : null) ?>" id="password" name="password" placeholder="Enter a password"
+                <input type="password" class="form-control <?= ($password_error ? 'is-invalid' : null) ?>" id="password" name="password" placeholder="Enter a password"
                     autocomplete="new-password" required value="<?= $password ?>">
 
                 <div class="invalid-feedback">
-                    <?= $password_err ?>
+                    <?= $password_error ?>
                 </div>
             </div>
 
             <div class="form-group col-12">
                 <label for="confirm_password">Confirm Password</label>
 
-                <input type="password" class="form-control  <?= ($confirm_password_err ? 'is-invalid' : null) ?>" id="confirm_password" name="confirm_password"
+                <input type="password" class="form-control  <?= ($confirm_password_error ? 'is-invalid' : null) ?>" id="confirm_password" name="confirm_password"
                     placeholder="Confirm your password" autocomplete="off" required
                     value="<?= $confirm_password ?>">
 
                 <div class="invalid-feedback">
-                    <?= $confirm_password_err ?>
+                    <?= $confirm_password_error ?>
                 </div>
             </div>
 
             <div class="p-0">
-                <div class="d-none <?= ($main_err ? 'is-invalid' : null) ?>"></div>
+                <div class="d-none <?= ($main_error ? 'is-invalid' : null) ?>"></div>
                 <div class="invalid-feedback p-2">
                     <i class="fa-solid fa-circle-exclamation me-2"></i>
-                    <?= $main_err ?>
+                    <?= $main_error ?>
                 </div>
             </div>
 

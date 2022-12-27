@@ -3,27 +3,31 @@
 require_once($_SERVER['DOCUMENT_ROOT'] . '/../config/db.php');
 
 
-function get_live_options($field, $value)
+function get_live_options($name, $value)
 {
     global $mysqli;
-    $field = trim($field);
-    $value = trim($value) . '%';
+    $name = trim($name);
+    $value = '%' . trim($value) . '%';
 
-    if ($field === 'locations') {
+    if ($name === 'locations') {
         $query = <<<SQL
-    SELECT CONCAT(Location.city, ' - ', Country.name) as label, 
+    SELECT
+        CONCAT(Location.city, ', ', Location.country) as label, 
         COUNT(*) as count
     FROM Location
-    INNER JOIN Country 
-    ON Location.country_iso3 = Country.country_iso3
-    WHERE Location.city LIKE ? OR Country.name LIKE ?
+    WHERE
+        Location.city LIKE ? 
+        OR Location.country LIKE ?
+        OR Location.country_iso2 LIKE ?
+        OR Location.country_iso3 LIKE ?
     GROUP BY Location.city
     ORDER BY Location.city
     LIMIT 10
 SQL;
         $stmt = $mysqli->prepare($query);
-        $stmt->bind_param('ss', $value, $value);
-    } else if ($field === 'tags') {
+        $stmt->bind_param('ssss', $value, $value, $value, $value);
+
+    } else if ($name === 'tags') {
         $query = <<<SQL
     SELECT Tag.name as label, COUNT(*) as count
     FROM Tag
@@ -36,7 +40,7 @@ SQL;
 SQL;
         $stmt = $mysqli->prepare($query);
         $stmt->bind_param('s', $value);
-    } else if ($field === 'positions') {
+    } else if ($name === 'positions') {
         $query = <<<SQL
     SELECT Position.name as label, COUNT(*) as count
     FROM Position
@@ -49,7 +53,7 @@ SQL;
 SQL;
         $stmt = $mysqli->prepare($query);
         $stmt->bind_param('s', $value);
-    } else if ($field === 'domains') {
+    } else if ($name === 'domains') {
         $query = <<<SQL
     SELECT Domain.name as label, COUNT(*) as count
     FROM Domain
@@ -62,7 +66,7 @@ SQL;
 SQL;
         $stmt = $mysqli->prepare($query);
         $stmt->bind_param('s', $value);
-    } else if ($field === 'orgs') {
+    } else if ($name === 'orgs') {
         $query = <<<SQL
     SELECT Organization.name as label, COUNT(*) as count
     FROM Organization

@@ -10,9 +10,6 @@ if (isset($_SESSION['email'])) {
     return;
 }
 
-$email_err = $password_err = '';
-$email = $password = '';
-
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     list(
         'email' => $email,
@@ -21,11 +18,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     list(
         'data' => $user,
-        'error' => $main_err
+        'error' => $main_error
     ) = authenticate_user($email, $password);
 
-    if ($main_err === '') {
-        $_SESSION['user'] = $user;
+    if ($user && !$main_error) {
+        $_SESSION = $user;
 
         header('Location: http://localhost');
         return;
@@ -44,8 +41,8 @@ echo render('signin-view', [
     'data' => [
         'email' => $email,
         'password' => $password,
-        'email_err' => $email_err,
-        'password_err' => $password_err,
-        'main_err' => $main_err,
+        'email_error' => $email_error,
+        'password_error' => $password_error,
+        'main_error' => $main_error,
     ],
 ]);

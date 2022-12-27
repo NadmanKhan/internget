@@ -19,11 +19,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         exit;
     }
 
-    list(
-        'data' => $internship,
-        'error' => $internship_error
-    ) = get_internship_by_id($id);
-
     if ($internship_error) {
         respond_error_page(500, 'An error occurred while fetching the internship: ' . json_encode($internship_error));
         exit;
@@ -36,11 +31,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 
     list(
         'data' => $internship['organization'],
-        'error' => $main_err
+        'error' => $main_error
     ) = get_organization_by_email($internship['organization_email']);
 
-    if ($main_err) {
-        respond_error_page(500, 'An error occurred while fetching the organization: ' . json_encode($main_err));
+    if ($main_error) {
+        respond_error_page(500, 'An error occurred while fetching the organization: ' . json_encode($main_error));
         exit;
     }
 

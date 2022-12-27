@@ -6,28 +6,28 @@
             <div class="form-group col-12">
                 <label for="email">Email address</label>
 
-                <input type="email" class="form-control <?= ($email_err ? 'is-invalid' : null) ?>" id="email" name="email" placeholder="Enter your email" autocomplete="email" value="<?= $email ?>" required>
+                <input type="email" class="form-control <?= ($email_error ? 'is-invalid' : null) ?>" id="email" name="email" placeholder="Enter your email" autocomplete="email" value="<?= $email ?>" required>
 
                 <div class="invalid-feedback">
-                    <?= $email_err ?>
+                    <?= $email_error ?>
                 </div>
             </div>
 
             <div class="form-group col-12">
                 <label for="password">Password</label>
 
-                <input type="password" class="form-control <?= ($password_err ? 'is-invalid' : null) ?>" id="password" name="password" placeholder="Enter a password" autocomplete="new-password" required value="<?= $password ?>">
+                <input type="password" class="form-control <?= ($password_error ? 'is-invalid' : null) ?>" id="password" name="password" placeholder="Enter a password" autocomplete="new-password" required value="<?= $password ?>">
 
                 <div class="invalid-feedback">
-                    <?= $password_err ?>
+                    <?= $password_error ?>
                 </div>
             </div>
 
             <div class="p-0">
-                <div class="d-none <?= ($main_err ? 'is-invalid' : null) ?>"></div>
+                <div class="d-none <?= ($main_error ? 'is-invalid' : null) ?>"></div>
                 <div class="invalid-feedback p-2">
                     <i class="fa-solid fa-circle-exclamation me-2"></i>
-                    <?= $main_err ?>
+                    <?= $main_error ?>
                 </div>
             </div>
 

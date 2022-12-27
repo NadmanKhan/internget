@@ -4,16 +4,16 @@ session_start();
 
 
 require_once($_SERVER['DOCUMENT_ROOT'] . '/../helpers/render.php');
-
 require_once($_SERVER['DOCUMENT_ROOT'] . '/../models/search-live.php');
+require_once($_SERVER['DOCUMENT_ROOT'] . '/../models/search.php');
 
 if (isset($_GET['search'])) {
     // if live search
     if ($_GET['search'] === 'live') {
 
-        list('field' => $field, 'value' => $value) = $_GET;
+        list('name' => $name, 'value' => $value) = $_GET;
 
-        if (!isset($field) || !isset($value)) {
+        if (!isset($name) || !isset($value)) {
             echo '[]';
             exit;
         }
@@ -21,7 +21,7 @@ if (isset($_GET['search'])) {
         list(
             'data' => $data,
             'error' => $error
-        ) = get_live_options($field, $value);
+        ) = get_live_options($name, $value);
 
         if ($error) {
             echo '[]';
@@ -36,12 +36,56 @@ if (isset($_GET['search'])) {
     else {
         extract($_GET);
 
+        // convert arrays
+        $tags = $tags ?? [];
+        $positions = $positions ?? [];
+        $domains = $domains ?? [];
+        $orgs = $orgs ?? [];
+        $workplace_mode = $workplace_mode ?? [];
+        $locations = $locations ?? [];
 
+        // convert to int
+        $has_bonus = $has_bonus ? 1 : 0;
+        $min_pay = (int) $min_pay;
+        $duration_min = (int) $duration_min;
+        $duration_max = (int) $duration_max;
+        $days_per_week_min = (int) $days_per_week_min;
+        $days_per_week_max = (int) $days_per_week_max;
+        $hours_per_week_min = (int) $hours_per_week_min;
+        $hours_per_week_max = (int) $hours_per_week_max;
+
+        // convert to date
+        $start_date_min = date('Y-m-d', strtotime($start_date_min));
+        $start_date_max = date('Y-m-d', strtotime($start_date_max));
+
+        // compact into an assoc array
+        $vars = compact(
+            'tags',
+            'positions',
+            'domains',
+            'orgs',
+            'workplace_mode',
+            'locations',
+            'has_bonus',
+            'min_pay',
+            'start_date_min',
+            'start_date_max',
+            'duration_min',
+            'duration_max',
+            'days_per_week_min',
+            'days_per_week_max',
+            'hours_per_week_min',
+            'hours_per_week_max',
+        );
 
         list(
             'data' => $internships,
             'error' => $error
-        ) = search($tags, $positions, $domains, $orgs, $workplace_mode, $cities, $countries, $min_pay, $start_date_min, $start_date_max, $duration_min, $duration_max, $hours_per_week_min, $hours_per_week_max, $days_per_week_min, $days_per_week_max, $schedule, $has_bonus, $page, $limit);
+        ) = get_internships($vars);
+
+        if ($error) {
+            $internships = [];
+        }
     }
 }
 
@@ -53,12 +97,12 @@ echo render('internship-search-view', [
         'title' => 'Internship Search',
         'description' => 'Search for internships',
         'url' => '/',
-        'css_files' => [
+        'css_sources' => [
             '/assets/css/multiselect.css',
         ],
-        'js_files' => [
-            '/assets/js/multiselect.js',
+        'js_sources' => [
             '/assets/js/cookies.js',
+            '/assets/js/multiselect.js',
         ],
     ],
     'data' => [
@@ -79,5 +123,6 @@ echo render('internship-search-view', [
         'days_per_week_max' => $days_per_week_max,
         'hours_per_week_min' => $hours_per_week_min,
         'hours_per_week_max' => $hours_per_week_max,
+        'internships' => $internships,
     ],
 ]);

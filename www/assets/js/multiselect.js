@@ -2,6 +2,7 @@
 function createMenuItem(label, count) {
   const item = document.createElement('li');
   item.classList.add('list-group-item');
+  item.style.cursor = 'pointer';
 
   // label
   const labelSpan = document.createElement('span');
@@ -39,7 +40,7 @@ function createChip(label) {
 }
 
 // helper function to get selected options from cookies
-function getSelectedOptions(field) {
+function getSelectedOptions(name) {
   let get = getCookie;
   if (typeof getCookie !== 'function') {
     get = function (name) {
@@ -48,12 +49,12 @@ function getSelectedOptions(field) {
       if (parts.length === 2) return parts.pop().split(';').shift();
     };
   }
-  const cookie = get(field);
+  const cookie = get(name);
   return cookie ? JSON.parse(cookie) : [];
 }
 
 // helper function to set selected options to cookies
-function setSelectedOptions(field, options) {
+function setSelectedOptions(name, options) {
   let set = setCookie;
   if (typeof setCookie !== 'function') {
     set = function (name, value) {
@@ -66,14 +67,14 @@ function setSelectedOptions(field, options) {
       document.cookie = `${name}=${(value || '')}; ${expires}; ${path}; SameSite=Lax`;
     };
   }
-  set(field, JSON.stringify(options));
+  set(name, JSON.stringify(options));
 }
 
 // helper function to fetch options from the server
-async function fetchOptions(field, value) {
+async function fetchOptions(name, value) {
   // const baseUrl = window.location.pathname;
   const baseUrl = '/';
-  const url = `${baseUrl}?search=live&field=${field}&value=${value}`;
+  const url = `${baseUrl}?search=live&name=${name}&value=${value}`;
   const response = await fetch(url);
   const data = await response.json() || [{
     label: 'x',
@@ -92,11 +93,11 @@ async function fetchOptions(field, value) {
 }
 
 // helper function to get options after fetching and filtering
-async function getOptions(field, value) {
+async function getOptions(name, value) {
   // fetch options from the server
-  const options = await fetchOptions(field, value);
+  const options = await fetchOptions(name, value);
   // get currently selected options from cookies
-  const selectedOptions = getSelectedOptions(field);
+  const selectedOptions = getSelectedOptions(name);
   // filter out selected options
   const filteredOptions = options.filter(option => !selectedOptions.includes(option));
   return filteredOptions;
@@ -161,12 +162,12 @@ document.querySelectorAll('form')
         });
 
         // handle click events on the list
-        menu.addEventListener('click', event => {
+        menu.addEventListener('mousedown', event => {
           const item = event.target;
           if (!item.classList.contains('list-group-item')) {
             return;
           }
-          const label = item.querySelector('.chip-label').textContent;
+          const label = item.querySelector('span:first-child').textContent;
 
           selectOption(label);
         });
@@ -273,6 +274,16 @@ document.querySelectorAll('form')
 
           selectedOptions.push(label);
 
+          if (multiselect.hasAttribute('data-max-select') &&
+            multiselect.dataset.maxSelect >= 0 &&
+            selectedOptions.length > multiselect.dataset.maxSelect) {
+
+            alert('You can only select ' + multiselect.dataset.maxSelect + ' options.');
+            while (selectedOptions.length > multiselect.dataset.maxSelect) {
+              selectedOptions.shift();
+            }
+          }
+
           setSelectedOptions(name, selectedOptions);
 
           onSelectionChange();
@@ -309,6 +320,14 @@ document.querySelectorAll('form')
           });
 
           closeMenu();
+
+          // dispatch formData event so the form data gets updated with the selected options
+          form.dispatchEvent(new CustomEvent('formData', {
+            detail: {
+              name,
+              value: selectedOptions
+            }
+          }));
         }
 
         // helper function to open the dropdown menu
@@ -325,7 +344,75 @@ document.querySelectorAll('form')
 
         // helper function to close the dropdown menu
         function closeMenu() {
+          input.value = '';
           menu.style.display = 'none';
         }
+
+        // section: add button to add current location if the name is `locations`
+        // ====================================================
+        if (name === 'locations') {
+          // add button to add current location using geolocation
+
+          const button = document.createElement('button');
+          button.classList.add('btn', 'btn-secondary', 'btn-sm');
+          button.textContent = 'Add current location';
+
+          button.addEventListener('click', async (e) => {
+            e.preventDefault();
+
+            if (!navigator || !navigator.geolocation) {
+              alert('Geolocation is not supported by your browser');
+              return;
+            }
+            navigator.geolocation.getCurrentPosition(async (position) => {
+              const lat = position.coords.latitude;
+              const lng = position.coords.longitude;
+              const url = `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lng}&localityLanguage=en`;
+              const response = await fetch(url);
+              const data = await response.json();
+              const city = data.city, country = data.countryName;
+              const location = await matchFromDatabase(city, country);
+              if (!location) {
+                alert('Your current location is not in our database');
+                return;
+              }
+              // location exists, so add it to the name
+              selectOption(location.label);
+            },
+              (error) => {
+                console.log(error);
+              }
+            );
+          });
+          // add button after multiselect
+          multiselect.parentNode.insertBefore(button, multiselect.nextSibling);
+
+          async function matchFromDatabase(city, country) {
+            const url = `/?search=live&name=locations&value=${city}`;
+            console.log(city);
+            console.log(country);
+            const response = await fetch(url);
+            const data = await response.json();
+            return data.find((option) =>
+              console.log(option.label) ||
+              option.label.toLowerCase().includes(city.trim().toLowerCase()) ||
+              option.label.toLowerCase().includes(country.trim().toLowerCase()));
+          }
+        }
       });
+
+    form.addEventListener('formdata', (e) => {
+      const formData = e.formData;
+
+      form.querySelectorAll('.multiselect')
+        .forEach(multiselect => {
+          const name = multiselect.dataset.name;
+          const selectedOptions = getSelectedOptions(name);
+          selectedOptions.forEach(option => {
+            e.formData.append(`${name}[]`, option);
+          });
+        });
+
+      console.log(new URLSearchParams(e.formData).toString());
+    });
   });

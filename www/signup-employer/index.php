@@ -10,9 +10,6 @@ if (!empty($_SESSION)) {
     return;
 }
 
-$name_err = $email_err = $password_err = $confirm_password_err = '';
-$name = $email = $password = $confirm_password = '';
-
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     list(
         'name' => $name,
@@ -23,42 +20,42 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     list(
         'data' => $name,
-        'error' => $name_err
+        'error' => $name_error
     ) = validate_name($name);
 
     list(
         'data' => $email,
-        'error' => $email_err
+        'error' => $email_error
     ) = validate_email($email);
 
-    if ($email_err !== '') {
+    if ($email_error !== '') {
         goto RENDER;
     }
 
-    list('error' => $email_err) = check_no_user_exists($email);
+    list('error' => $email_error) = check_no_user_exists($email);
 
-    if ($email_err !== '') {
+    if ($email_error !== '') {
         goto RENDER;
     }
 
     list(
         'data' => $hashed_password,
-        'error' => $password_err
+        'error' => $password_error
     ) = validate_password($password);
 
-    if ($password_err !== '') {
+    if ($password_error !== '') {
         goto RENDER;
     }
 
     list(
         'data' => $confirm_password,
-        'error' => $confirm_password_err
+        'error' => $confirm_password_error
     ) = validate_confirm_password($password, $confirm_password);
 
-    if ($name_err === '' && $email_err === '' && $password_err === '' && $confirm_password_err === '') {
-        list('error' => $main_err) = create_organization($name, $email, $hashed_password);
+    if ($name_error === '' && $email_error === '' && $password_error === '' && $confirm_password_error === '') {
+        list('error' => $main_error) = create_organization($name, $email, $hashed_password);
 
-        if ($main_err === '') {
+        if ($main_error === '') {
             header('Location: http://localhost/signin');
             return;
         }
@@ -78,9 +75,9 @@ echo render('signup-employer-view', [
     'data' => [
         'name' => $name,
         'email' => $email,
-        'name_err' => $name_err,
-        'email_err' => $email_err,
-        'password_err' => $password_err,
-        'confirm_password_err' => $confirm_password_err,
+        'name_error' => $name_error,
+        'email_error' => $email_error,
+        'password_error' => $password_error,
+        'confirm_password_error' => $confirm_password_error,
     ],
 ]);

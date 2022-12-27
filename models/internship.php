@@ -1,6 +1,6 @@
 <?php
 
-require_once($_SERVER['DOCUMENT_ROOT'] . '/../config/db.php');
+require_once($_SERVER['DOCUMENT_ROOT'] . '/../config/app.php');
 
 // validate input
 // ===========================================
@@ -8,21 +8,19 @@ require_once($_SERVER['DOCUMENT_ROOT'] . '/../config/db.php');
 // validate short autocomplete field
 function validate_autocomplete_text($autocomplete_text, $field_name, $is_required = false, $options = [])
 {
-    $error = '';
+    $error = null;
     if ($is_required && empty($autocomplete_text)) {
         $error = $field_name . ' is required';
     } else if (strlen($autocomplete_text) > 30) {
         $error = $field_name . ' must be less than 30 characters';
     } else if (strlen($autocomplete_text) < 2) {
         $error = $field_name . ' must be at least 2 characters';
-    } else if (!preg_match('/^[\p{L}\s._-:]+$/u', $autocomplete_text)) {
-        $error = 'A ' . $field_name . ' must contain only letters, spaces, and the following special characters: . _ - :';
     } else if (!empty($options) && !in_array($autocomplete_text, $options)) {
         $error = 'A ' . $field_name . ' is not from the list of options';
     }
 
     if ($error === '') {
-        $autocomplete_text = htmlspecialchars(trim($autocomplete_text));
+        $autocomplete_text = trim($autocomplete_text);
     }
 
     return [
@@ -34,7 +32,7 @@ function validate_autocomplete_text($autocomplete_text, $field_name, $is_require
 // validate long text field
 function validate_long_text($long_text, $field_name, $is_required = false)
 {
-    $error = '';
+    $error = null;
     if ($is_required && empty($long_text)) {
         $error = $field_name . ' is required';
     } else if (strlen($long_text) > 1000) {
@@ -44,7 +42,7 @@ function validate_long_text($long_text, $field_name, $is_required = false)
     }
 
     if ($error === '') {
-        $long_text = htmlspecialchars(trim($long_text));
+        $long_text = trim($long_text);
     }
 
     return [
@@ -56,7 +54,7 @@ function validate_long_text($long_text, $field_name, $is_required = false)
 // validate numberic field
 function validate_numeric($numeric, $field_name, $is_required = false, $is_integer = true, $min = 0, $max = 1000000000)
 {
-    $error = '';
+    $error = null;
     if ($is_required && empty($numeric)) {
         $error = $field_name . ' is required';
     } else if (!is_numeric($numeric)) {
@@ -70,7 +68,7 @@ function validate_numeric($numeric, $field_name, $is_required = false, $is_integ
     }
 
     if ($error === '') {
-        $numeric = htmlspecialchars(trim($numeric));
+        $numeric = trim($numeric);
     }
 
     return [
@@ -82,7 +80,7 @@ function validate_numeric($numeric, $field_name, $is_required = false, $is_integ
 // validate enum field
 function validate_enum($enum, $field_name, $is_required = false, $enum_values = [])
 {
-    $error = '';
+    $error = null;
     if ($is_required && empty($enum)) {
         $error = $field_name . ' is required';
     } else if (!in_array($enum, $enum_values)) {
@@ -92,7 +90,7 @@ function validate_enum($enum, $field_name, $is_required = false, $enum_values = 
     }
 
     if ($error === '') {
-        $enum = htmlspecialchars(trim($enum));
+        $enum = trim($enum);
     }
 
     return [
@@ -104,7 +102,7 @@ function validate_enum($enum, $field_name, $is_required = false, $enum_values = 
 // validate date field
 function validate_date($date, $field_name, $is_required = false)
 {
-    $error = '';
+    $error = null;
     if ($is_required && empty($date)) {
         $error = $field_name . ' is required';
     } else if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $date)) {
@@ -114,7 +112,7 @@ function validate_date($date, $field_name, $is_required = false)
     }
 
     if ($error === '') {
-        $date = htmlspecialchars(trim($date));
+        $date = trim($date);
     }
 
     return [
@@ -127,199 +125,173 @@ function validate_date($date, $field_name, $is_required = false)
 // ===========================================
 
 // insert if not exists
-function insert_if_not_exists($table, $column, $values)
+function insert_if_not_exists(string $table, array $columns, string $types, array $values)
 {
     global $mysqli;
 
-    $query = <<<SQL
-    INSERT INTO $table (
-        $column
-    ) VALUES (
-        ?
-    ) ON DUPLICATE KEY UPDATE id = id
-SQL;
-
-    $stmt = $mysqli->prepare($query);
-    foreach ($values as $value) {
-        $stmt->bind_param('s', $value);
-        $stmt->execute();
+    // if length of columns, column types and values are not equal, die with error
+    if (count($columns) !== count($values) || count($columns) !== strlen($types)) {
+        die('Error: length of columns, column types and values are not equal');
     }
 
-    return $stmt->affected_rows;
+    // query format to check if row exists
+    $query = <<<SQL
+        SELECT *
+        FROM $table
+        WHERE %s
+        LIMIT 1
+SQL;
+
+    // build query
+    $where_clauses = array_map(function ($column) {
+        return $column . ' = ?';
+    }, $columns);
+    $query = sprintf($query, implode(' AND ', $where_clauses));
+
+    // prepare, bind and execute statement
+    $stmt = $mysqli->prepare($query);
+    $stmt->bind_param($types, ...$values);
+    $stmt->execute();
+
+    // get result
+    $result = $stmt->get_result();
+
+    // if row doesn't exist, insert it
+    if ($result->num_rows === 0) {
+        // query format to insert row
+        $query = <<<SQL
+            INSERT INTO $table (%s)
+            VALUES (%s)
+SQL;
+
+        // build query
+        $value_placeholders = implode(', ', array_fill(0, count($columns), '?'));
+        $query = sprintf($query, implode(', ', $columns), $value_placeholders);
+
+        // prepare, bind and execute statement
+        $stmt = $mysqli->prepare($query);
+        $stmt->bind_param($types, ...$values);
+        $stmt->execute();
+
+        // get result
+        $result = $stmt->get_result();
+
+        // if row was inserted, return the insert id
+        if ($result) {
+            return [
+                'data' => $mysqli->insert_id,
+                'error' => null,
+            ];
+        }
+
+        // else, return false with error
+        return [
+            'data' => false,
+            'error' => 'Error: row was not inserted',
+        ];
+    } else {
+        // if row exists, fetch it and return the id
+        $row = $result->fetch_row();
+        if (!$row) {
+            // if row was not fetched, return false with error
+            return [
+                'data' => false,
+                'error' => 'Error: row does not exist',
+            ];
+        }
+        // build name of id column: lowercase table (entity) name + '_id'
+        $id_column = strtolower($table) . '_id';
+        // return id
+        return [
+            'data' => $row[$id_column],
+            'error' => null,
+        ];
+    }
 }
 
 // create internship
-function create_internship(
-    $position_name,
-    $organization_email,
-    $description,
-    $qualifications,
-    $responsibilities,
-    $application_process,
-    $contact_details,
-    $tags,
-    $domains,
-    $workplace_mode,
-    $city,
-    $country,
-    $hourly_pay,
-    $has_bonus,
-    $schedule,
-    $start_date,
-    $duration,
-    $hours_per_week,
-    $days_per_week
-) {
-    global $mysqli;
-
-    // insert position if it doesn't already exist
-    insert_if_not_exists('Position', 'position_name', [$position_name]);
-
-    // insert tags that don't already exist
-    if (!is_array($tags)) {
-        $tags = explode(',', $tags);
-    }
-    $tags = array_map('trim', $tags);
-    $tags = array_filter($tags);
-    $tags = array_unique($tags);
-    insert_if_not_exists('Tag', 'tag_name', $tags);
-
-    // insert domains that don't already exist
-    if (!is_array($domains)) {
-        $domains = explode(',', $domains);
-    }
-    $domains = array_map('trim', $domains);
-    $domains = array_filter($domains);
-    $domains = array_unique($domains);
-    insert_if_not_exists('Domain', 'domain_name', $domains);
-
-    $query = <<<SQL
-    INSERT INTO Internship (
-        position_name,
-        organization_email,
-        description,
-        qualifications,
-        responsibilities,
-        application_process,
-        contact_details,
-        workplace_mode,
-        city_name,
-        country_name,
-        schedule,
-        start_date,
-        hourly_pay,
-        has_bonus,
-        duration,
-        hours_per_week,
-        days_per_week
-    ) VALUES (
-        ?,
-        ?,
-        ?,
-        ?,
-        ?,
-        ?,
-        ?,
-        ?,
-        ?,
-        ?,
-        ?,
-        ?,
-        ?,
-        ?,
-        ?,
-        ?,
-        ?
-    )
-SQL;
-
-    $stmt = $mysqli->prepare($query);
-    $stmt->bind_param(
-        'ssssssssssssiiiii',
-        $position_name,
-        $organization_email,
-        $description,
-        $qualifications,
-        $responsibilities,
-        $application_process,
-        $contact_details,
-        $workplace_mode,
-        $city,
-        $country,
-        $schedule,
-        $start_date,
-        $hourly_pay,
-        $has_bonus,
-        $duration,
-        $hours_per_week,
-        $days_per_week
-    );
-    $stmt->execute();
-
-    $internship_id = $stmt->insert_id;
-
-    return $internship_id;
-}
-
-// get internship by id
-function get_internship_by_id($internship_id)
+// too many columns, so use an array instead of named parameters
+function create_internship(array $vars)
 {
     global $mysqli;
 
-    $query = <<<SQL
-    SELECT
-        i.id,
-        i.position_name,
-        i.organization_email,
-        i.description,
-        i.qualifications,
-        i.responsibilities,
-        i.application_process,
-        i.contact_details,
-        i.workplace_mode,
-        i.city_name,
-        i.country_name,
-        i.schedule,
-        i.start_date,
-        i.hourly_pay,
-        i.has_bonus,
-        i.duration,
-        i.hours_per_week,
-        i.days_per_week,
-        i.created_at,
-        i.updated_at,
-        GROUP_CONCAT(DISTINCT t.tag_name SEPARATOR ',') AS tags,
-        GROUP_CONCAT(DISTINCT d.domain_name SEPARATOR ',') AS domains
-    FROM Internship i
-    LEFT JOIN InternshipTag i_t ON i_t.internship_id = i.internship_id
-    LEFT JOIN Tag t ON t.tag_name = i_t.tag_name
-    LEFT JOIN InternshipDomain i_d ON i_d.internship_id = i.internship_id
-    LEFT JOIN Domain d ON d.domain_name = i_d.domain_name
-    WHERE i.internship_id = ?
-    GROUP BY i.internship_id
-SQL;
-
-    $stmt = $mysqli->prepare($query);
-    $stmt->bind_param('i', $internship_id);
-    $stmt->execute();
-    $result = $stmt->get_result();
-
-    $internship = $result->fetch_assoc();
-
-    // handle error
-    if (!$internship) {
+    // first, insert to referenced (one-to-many) tables if they don't exist, 
+    // and store the insert ids
+    list(
+        'data' => $position_id,
+        'error' => $error
+    ) = insert_if_not_exists('Position', ['name'], 's', [$vars['position_name']]);
+    
+    if ($error) {
         return [
-            'data' => [],
-            'error' => 'Internship not found'
+            'data' => false,
+            'error' => $error
         ];
     }
 
-    // convert tags and domains to arrays
-    $internship['tags'] = explode(',', $internship['tags']);
-    $internship['domains'] = explode(',', $internship['domains']);
+    // then, insert to Internship table
 
+    // build query
+    $query = <<<SQL
+        INSERT INTO Internship 
+        (
+            position_id, -- int, foreign key
+            organization_id, -- int, foreign key 
+            description, -- text
+            qualifications, -- text
+            responsibilities, -- text
+            application_process, -- text
+            contact_details, -- text
+            location_id, -- int, foreign key
+            hourly_pay, -- double
+            has_bonus, -- boolean
+            schedule, -- enum('full-time', 'part-time', 'flexible', 'project-based')
+            workplace_mode, -- enum('remote', 'in-person', 'mixed')
+            start_date, -- date
+            duration, -- tinyint
+            hours_per_week, -- tinyint
+            days_per_week -- tinyint
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+SQL;
+
+    // prepare, bind and execute statement
+    $stmt = $mysqli->prepare($query);
+    $stmt->bind_param(
+        'iisssssidisssiii',
+        $position_id,
+        $vars['organization_id'],
+        $vars['description'],
+        $vars['qualifications'],
+        $vars['responsibilities'],
+        $vars['application_process'],
+        $vars['contact_details'],
+        $vars['location_id'],
+        $vars['hourly_pay'],
+        $vars['has_bonus'],
+        $vars['schedule'],
+        $vars['workplace_mode'],
+        $vars['start_date'],
+        $vars['duration'],
+        $vars['hours_per_week'],
+        $vars['days_per_week']
+    );
+    $stmt->execute();
+
+    // get result
+    $result = $stmt->get_result();
+
+    // if row was inserted, return the insert id
+    if ($result) {
+        return [
+            'data' => $mysqli->insert_id,
+            'error' => null,
+        ];
+    }
+
+    // else, return false with error
     return [
-        'data' => $internship,
-        'error' => ''
+        'data' => false,
+        'error' => 'Error: row was not inserted',
     ];
 }
