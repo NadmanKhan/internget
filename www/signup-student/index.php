@@ -1,9 +1,8 @@
 <?php
 
-session_start();
-
-require_once($_SERVER['DOCUMENT_ROOT'] . '/../models/user.php');
-require_once($_SERVER['DOCUMENT_ROOT'] . '/../helpers/render.php');
+require_once getenv('APP_CONFIG_DIR') . '/app.php';
+require_once getenv('APP_HELPERS_DIR') . '/render.php';
+require_once getenv('APP_MODELS_DIR') . '/user.php';
 
 if (isset($_SESSION['user'])) {
     echo respond_error_page(403, 'You are already signed in. Please sign out first.');

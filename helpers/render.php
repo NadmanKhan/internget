@@ -1,13 +1,13 @@
 <?php
 
-function render($view, $options = []): bool|string
+function render(string $view, array $options = []): bool|string
 {
     // separate the options into page and data
     $page = $options['page'] ?? [];
     $data = $options['data'] ?? [];
 
     // get the view file path
-    $path_to_view = $_SERVER['DOCUMENT_ROOT'] . '/../views/' . $view . '.php';
+    $path_to_view = getenv('APP_VIEWS_DIR') . '/' . $view . '.php';
 
     // if the specified view file does not exist, die with an error message
     if (!file_exists($path_to_view)) {
@@ -28,7 +28,7 @@ function render($view, $options = []): bool|string
         require_once($path_to_view);
         $page['content'] = ob_get_clean();
 
-        $path_to_layout = $_SERVER['DOCUMENT_ROOT'] . '/../views/layouts/' .
+        $path_to_layout = getenv('APP_VIEW_LAYOUTS_DIR') . '/' .
             $page['layout'] . '.php';
 
         // if the specified layout file does not exist, die with an error message
@@ -43,10 +43,8 @@ function render($view, $options = []): bool|string
         require_once($view);
     }
 
-    // return the render content from the buffer and stop buffering
-    $result = ob_get_clean();
-    ob_end_clean();
-    return $result;
+    // return the render content from the buffer
+    return ob_get_clean();
 }
 
 function respond_error_page($error_code, $error_message): bool|string

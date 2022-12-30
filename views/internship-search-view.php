@@ -7,7 +7,7 @@
                 <div class="form-group col-sm-12 col-md-12">
                     <label for="tags" class="form-label mb-0">Tags</label>
 
-                    <div class="multiselect" id="tags" data-name="tags" data-match-only data-max-select="10"></div>
+                    <div role="textbox" class="multiselect" id="tags" data-name="tags" data-must-match-options data-max-select="10" data-use-cookies></div>
                 </div>
             </section>
 
@@ -17,13 +17,13 @@
                 <div class="form-group col-sm-12 col-md-6">
                     <label for="positions" class="form-label mb-0">Positions</label>
 
-                    <div class="multiselect" id="positions" data-name="positions" data-match-only data-max-select="10"></div>
+                    <div role="textbox" class="multiselect" id="positions" data-name="positions" data-must-match-options data-max-select="10" data-use-cookies></div>
                 </div>
 
                 <div class="form-group col-sm-12 col-md-6">
                     <label for="domains" class="form-label mb-0">Domains of work</label>
 
-                    <div class="multiselect" id="domains" data-name="domains" data-match-only data-max-select="10"></div>
+                    <div role="textbox" class="multiselect" id="domains" data-name="domains" data-must-match-options data-max-select="10" data-use-cookies></div>
                 </div>
             </section>
 
@@ -31,25 +31,25 @@
                 <small class="text-secondary p-1 col-12">Workplace</small>
 
                 <div class="form-group col-sm-12 col-md-6">
-                    <label for="workplace_mode" class="form-label">Mode</label>
+                    <label for="workplace_modes" class="form-label">Mode</label>
 
-                    <div id="workplace_mode">
+                    <div id="workplace_modes">
                         <div class="form-check form-check-inline">
-                            <input type="checkbox" class="form-check-input" name="workplace_mode[]" id="remote" value="remote" <?php if (isset($workplace_mode) && in_array('remote', $workplace_mode))
+                            <input type="checkbox" class="form-check-input" name="workplace_modes[]" id="remote" value="remote" <?php if (isset($workplace_modes) && in_array('remote', $workplace_modes))
                                                                                                                                     echo 'checked'; ?>>
 
                             <label for="remote" class="form-check-label">Remote/virtual</label>
                         </div>
 
                         <div class="form-check form-check-inline">
-                            <input type="checkbox" class="form-check-input" name="workplace_mode[]" id="in_person" value="in_person" <?php if (isset($workplace_mode) && in_array('in_person', $workplace_mode))
+                            <input type="checkbox" class="form-check-input" name="workplace_modes[]" id="in-person" value="in-person" <?php if (isset($workplace_modes) && in_array('in-person', $workplace_modes))
                                                                                                                                             echo 'checked'; ?>>
 
-                            <label for="in_person" class="form-check-label">In-person</label>
+                            <label for="in-person" class="form-check-label">In-person</label>
                         </div>
 
                         <div class="form-check form-check-inline">
-                            <input type="checkbox" class="form-check-input" name="workplace_mode[]" id="mixed" value="mixed" <?php if (isset($workplace_mode) && in_array('mixed', $workplace_mode))
+                            <input type="checkbox" class="form-check-input" name="workplace_modes[]" id="mixed" value="mixed" <?php if (isset($workplace_modes) && in_array('mixed', $workplace_modes))
                                                                                                                                     echo 'checked'; ?>>
 
                             <label for="mixed" class="form-check-label">Mixed</label>
@@ -60,13 +60,15 @@
                 <div class="form-group col-sm-12 col-md-6">
                     <label for="orgs" class="form-label mb-0">Organization names</label>
 
-                    <div class="multiselect" id="orgs" data-name="orgs" data-match-only data-max-select="10"></div>
+                    <div role="textbox" class="multiselect" id="orgs" data-name="orgs" data-must-match-options data-max-select="10" data-use-cookies></div>
                 </div>
 
                 <div class="form-group col-sm-12 col-md-6">
                     <label for="locations" class="form-label mb-0">Locations (city and country)</label>
 
-                    <div class="multiselect" id="locations" data-name="locations" data-match-only data-max-select="2"></div>
+                    <div role="textbox" class="multiselect" id="locations" data-name="locations" data-must-match-options data-max-select="10" data-use-cookies></div>
+
+                    <div class="invalid-feedback">fff</div>
                 </div>
             </section>
 
@@ -103,31 +105,31 @@
                 <small class="text-secondary p-1 col-12">Time commitment</small>
 
                 <div class="form-group col-sm-12 col-md-6 col-lg-4">
-                    <label for="work_schedule" class="form-label">Type</label>
+                    <label for="schedules" class="form-label">Type</label>
 
-                    <div id="work_schedule">
+                    <div id="schedules">
                         <div class="form-check form-check-inline">
-                            <input type="checkbox" class="form-check-input" name="work_schedule[]" id="part_time" value="part_time">
+                            <input type="checkbox" class="form-check-input" name="schedules[]" id="part-time" value="part-time">
 
-                            <label for="part_time" class="form-check-label">Part-time</label>
+                            <label for="part-time" class="form-check-label">Part-time</label>
                         </div>
 
                         <div class="form-check form-check-inline">
-                            <input type="checkbox" class="form-check-input" name="work_schedule[]" id="full_time" value="full_time">
+                            <input type="checkbox" class="form-check-input" name="schedules[]" id="full-time" value="full-time">
 
-                            <label for="full_time" class="form-check-label">Full-time</label>
+                            <label for="full-time" class="form-check-label">Full-time</label>
                         </div>
 
                         <div class="form-check form-check-inline">
-                            <input type="checkbox" class="form-check-input" name="work_schedule[]" id="flexible" value="flexible">
+                            <input type="checkbox" class="form-check-input" name="schedules[]" id="flexible" value="flexible">
 
                             <label for="flexible" class="form-check-label">Flexible</label>
                         </div>
 
                         <div class="form-check form-check-inline">
-                            <input type="checkbox" class="form-check-input" name="work_schedule[]" id="project_based" value="project_based">
+                            <input type="checkbox" class="form-check-input" name="schedules[]" id="project-based" value="project-based">
 
-                            <label for="project_based" class="form-check-label">Project-based</label>
+                            <label for="project-based" class="form-check-label">Project-based</label>
                         </div>
                     </div>
                 </div>
@@ -222,7 +224,7 @@
         <div class="row">
             <?php foreach ($internships as $internship) { ?>
                 <div class="col-12 my-3">
-                    <?php require($_SERVER['DOCUMENT_ROOT'] . '/../views/partials/internship-card.php'); ?>
+                    <?php require getenv('APP_VIEW_PARTIALS_DIR') . '/internship-card.php'; ?>
                 </div>
             <?php } ?>
         </div>

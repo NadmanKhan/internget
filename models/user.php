@@ -1,6 +1,6 @@
 <?php
 
-require_once($_SERVER['DOCUMENT_ROOT'] . '/../config/db.php');
+require_once getenv('APP_CONFIG_DIR') . '/app.php';
 
 // validate input
 // ===========================================

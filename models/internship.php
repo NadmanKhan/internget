@@ -1,44 +1,46 @@
 <?php
 
-require_once($_SERVER['DOCUMENT_ROOT'] . '/../config/app.php');
+require_once getenv('APP_CONFIG_DIR') . '/app.php';
+require_once getenv('APP_CONFIG_DIR') . '/db.php';
 
+// *******************************************
 // validate input
 // ===========================================
 
 // validate short autocomplete field
-function validate_autocomplete_text($autocomplete_text, $field_name, $is_required = false, $options = [])
+function validate_option_text(string $option_text, string $field_name, bool $is_required = false, array $options = [])
 {
     $error = null;
-    if ($is_required && empty($autocomplete_text)) {
-        $error = $field_name . ' is required';
-    } else if (strlen($autocomplete_text) > 30) {
-        $error = $field_name . ' must be less than 30 characters';
-    } else if (strlen($autocomplete_text) < 2) {
+    if ($is_required && empty($option_text)) {
+        $error = $field_name . ' cannot be empty';
+    } else if ($is_required && strlen($option_text) < 2) {
         $error = $field_name . ' must be at least 2 characters';
-    } else if (!empty($options) && !in_array($autocomplete_text, $options)) {
-        $error = 'A ' . $field_name . ' is not from the list of options';
+    } else if (strlen($option_text) > 30) {
+        $error = $field_name . ' must be less than 30 characters';
+    } else if (!empty($options) && !in_array($option_text, $options)) {
+        $error = $field_name . ' is not from the list of options';
     }
 
     if ($error === '') {
-        $autocomplete_text = trim($autocomplete_text);
+        $option_text = trim($option_text);
     }
 
     return [
-        'data' => $autocomplete_text,
+        'data' => $option_text,
         'error' => $error
     ];
 }
 
 // validate long text field
-function validate_long_text($long_text, $field_name, $is_required = false)
+function validate_long_text(string $long_text, string $field_name, bool $is_required = false)
 {
     $error = null;
     if ($is_required && empty($long_text)) {
-        $error = $field_name . ' is required';
+        $error = $field_name . ' cannot be empty';
+    } else if ($is_required && strlen($long_text) < 2) {
+        $error = $field_name . ' must be at least 2 characters';
     } else if (strlen($long_text) > 1000) {
         $error = $field_name . ' must be less than 1000 characters';
-    } else if (strlen($long_text) < 2) {
-        $error = $field_name . ' must be at least 2 characters';
     }
 
     if ($error === '') {
@@ -52,11 +54,11 @@ function validate_long_text($long_text, $field_name, $is_required = false)
 }
 
 // validate numberic field
-function validate_numeric($numeric, $field_name, $is_required = false, $is_integer = true, $min = 0, $max = 1000000000)
+function validate_numeric(float|int $numeric, string $field_name, bool $is_required = false, bool $is_integer = true, float|int $min = 0, float|int $max = 1000000000)
 {
     $error = null;
     if ($is_required && empty($numeric)) {
-        $error = $field_name . ' is required';
+        $error = $field_name . ' cannot be empty';
     } else if (!is_numeric($numeric)) {
         $error = $field_name . ' must be a number';
     } else if ($is_integer && !is_int($numeric + 0)) {
@@ -78,11 +80,11 @@ function validate_numeric($numeric, $field_name, $is_required = false, $is_integ
 }
 
 // validate enum field
-function validate_enum($enum, $field_name, $is_required = false, $enum_values = [])
+function validate_enum(string $enum, string $field_name, bool $is_required = false, array $enum_values = [])
 {
     $error = null;
     if ($is_required && empty($enum)) {
-        $error = $field_name . ' is required';
+        $error = $field_name . ' cannot be empty';
     } else if (!in_array($enum, $enum_values)) {
         $error = $field_name . ' must be one of the following: ' . implode(', ', array_map(function ($value) {
             return '"' . $value . '"';
@@ -100,11 +102,11 @@ function validate_enum($enum, $field_name, $is_required = false, $enum_values = 
 }
 
 // validate date field
-function validate_date($date, $field_name, $is_required = false)
+function validate_date(string $date, string $field_name, bool $is_required = false)
 {
     $error = null;
     if ($is_required && empty($date)) {
-        $error = $field_name . ' is required';
+        $error = $field_name . ' cannot be empty';
     } else if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $date)) {
         $error = $field_name . ' must be a valid date of the format YYYY-MM-DD';
     } else if (strtotime($date) < strtotime('today')) {
@@ -121,8 +123,55 @@ function validate_date($date, $field_name, $is_required = false)
     ];
 }
 
+// *******************************************
 // db query functions
 // ===========================================
+
+// get location id
+function get_location_id(string $location)
+{
+    global $mysqli;
+
+    if (empty($location)) {
+        return [
+            'data' => null,
+            'error' => 'A location cannot be empty'
+        ];
+    }
+
+    // query format to get location id
+    $query = <<<SQL
+        SELECT location_id
+        FROM Location
+        WHERE CONCAT(city, ', ', country) = ?
+        LIMIT 1
+SQL;
+
+    // prepare, bind and execute statement
+    $stmt = $mysqli->prepare($query);
+    $stmt->bind_param('s', $location);
+    $stmt->execute();
+
+    // get result
+    $result = $stmt->get_result();
+
+    // if location exists, return location id
+    if ($result->num_rows > 0) {
+        $row = $result->fetch_assoc();
+        return [
+            'data' => $row['location_id'],
+            'error' => null
+        ];
+    }
+    // else, return false with error
+    else {
+        return [
+            'data' => false,
+            'error' => 'Location does not exist </br>>' . $mysqli->error
+        ];
+    }
+}
+
 
 // insert if not exists
 function insert_if_not_exists(string $table, array $columns, string $types, array $values)
@@ -173,11 +222,8 @@ SQL;
         $stmt->bind_param($types, ...$values);
         $stmt->execute();
 
-        // get result
-        $result = $stmt->get_result();
-
         // if row was inserted, return the insert id
-        if ($result) {
+        if ($mysqli->affected_rows > 0) {
             return [
                 'data' => $mysqli->insert_id,
                 'error' => null,
@@ -191,7 +237,8 @@ SQL;
         ];
     } else {
         // if row exists, fetch it and return the id
-        $row = $result->fetch_row();
+        $row = $result->fetch_assoc();
+        $id_column = strtolower($table) . '_id';
         if (!$row) {
             // if row was not fetched, return false with error
             return [
@@ -200,7 +247,7 @@ SQL;
             ];
         }
         // build name of id column: lowercase table (entity) name + '_id'
-        $id_column = strtolower($table) . '_id';
+
         // return id
         return [
             'data' => $row[$id_column],
@@ -209,19 +256,97 @@ SQL;
     }
 }
 
+// insert in relation table
+function insert_relation(string $table, string $column1, string $column2, int $value1, int $value2)
+{
+    global $mysqli;
+
+    // query format to insert row
+    $query = <<<SQL
+        INSERT INTO $table ($column1, $column2)
+        VALUES (?, ?)
+SQL;
+
+    // prepare, bind and execute statement
+    $stmt = $mysqli->prepare($query);
+    $stmt->bind_param('ii', $value1, $value2);
+    $stmt->execute();
+
+    // if row was inserted, return true
+    if ($mysqli->affected_rows > 0) {
+        return [
+            'data' => true,
+            'error' => null,
+        ];
+    }
+
+    // else, return false with error
+    return [
+        'data' => false,
+        'error' => 'Error: row was not inserted',
+    ];
+}
+
 // create internship
 // too many columns, so use an array instead of named parameters
 function create_internship(array $vars)
 {
     global $mysqli;
 
-    // first, insert to referenced (one-to-many) tables if they don't exist, 
+    // first, insert to referenced foreign-key tables if they don't exist, 
     // and store the insert ids
+
     list(
         'data' => $position_id,
         'error' => $error
-    ) = insert_if_not_exists('Position', ['name'], 's', [$vars['position_name']]);
-    
+    ) = insert_if_not_exists('Position', ['name'], 's', [$vars['position']]);
+
+    if ($error) {
+        return [
+            'data' => false,
+            'error' => $error
+        ];
+    }
+
+    $domain_ids = [];
+    foreach ($vars['domains'] as $domain) {
+        list(
+            'data' => $domain_id,
+            'error' => $error
+        ) = insert_if_not_exists('Domain', ['name'], 's', [$domain]);
+
+        if ($error) {
+            return [
+                'data' => false,
+                'error' => $error
+            ];
+        }
+        $domain_ids[] = $domain_id;
+    }
+
+    if ($error) {
+        return [
+            'data' => false,
+            'error' => $error
+        ];
+    }
+
+    $tag_ids = [];
+    foreach ($vars['tags'] as $tag) {
+        list(
+            'data' => $tag_id,
+            'error' => $error
+        ) = insert_if_not_exists('Tag', ['name'], 's', [$tag]);
+
+        if ($error) {
+            return [
+                'data' => false,
+                'error' => $error
+            ];
+        }
+        $tag_ids[] = $tag_id;
+    }
+
     if ($error) {
         return [
             'data' => false,
@@ -279,19 +404,48 @@ SQL;
     $stmt->execute();
 
     // get result
-    $result = $stmt->get_result();
+    $internship_id = $stmt->insert_id;
 
-    // if row was inserted, return the insert id
-    if ($result) {
+    if (!$internship_id) {
         return [
-            'data' => $mysqli->insert_id,
-            'error' => null,
+            'data' => $internship_id,
+            'error' => 'Error: internship was not inserted'
         ];
     }
 
-    // else, return false with error
+    // insert into relation tables for many-to-many relations
+
+    foreach ($domain_ids as $domain_id) {
+        list(
+            'data' => $result,
+            'error' => $error
+        ) = insert_relation('InternshipDomain', 'internship_id', 'domain_id', $internship_id, $domain_id);
+
+        if ($error) {
+            return [
+                'data' => false,
+                'error' => $error
+            ];
+        }
+    }
+
+    foreach ($tag_ids as $tag_id) {
+        list(
+            'data' => $result,
+            'error' => $error
+        ) = insert_relation('InternshipTag', 'internship_id', 'tag_id', $internship_id, $tag_id);
+
+        if ($error) {
+            return [
+                'data' => false,
+                'error' => $error
+            ];
+        }
+    }
+
+    // return internship id
     return [
-        'data' => false,
-        'error' => 'Error: row was not inserted',
+        'data' => $internship_id,
+        'error' => null
     ];
 }

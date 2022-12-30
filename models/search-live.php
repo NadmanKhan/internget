@@ -1,19 +1,18 @@
 <?php
 
-require_once($_SERVER['DOCUMENT_ROOT'] . '/../config/db.php');
-
+require_once getenv('APP_CONFIG_DIR') . '/app.php';
 
 function get_live_options($name, $value)
 {
     global $mysqli;
     $name = trim($name);
-    $value = '%' . trim($value) . '%';
+    $value = trim($value) . '%';
 
-    if ($name === 'locations') {
+    if ($name === 'locations' || $name === 'location') {
         $query = <<<SQL
     SELECT
-        CONCAT(Location.city, ', ', Location.country) as label, 
-        COUNT(*) as count
+        CONCAT(Location.city, ', ', Location.country) as labelText, 
+        COUNT(*) as labelCount
     FROM Location
     WHERE
         Location.city LIKE ? 
@@ -21,18 +20,17 @@ function get_live_options($name, $value)
         OR Location.country_iso2 LIKE ?
         OR Location.country_iso3 LIKE ?
     GROUP BY Location.city
-    ORDER BY Location.city
+    ORDER BY CONCAT(Location.city, ', ', Location.country)
     LIMIT 10
 SQL;
         $stmt = $mysqli->prepare($query);
         $stmt->bind_param('ssss', $value, $value, $value, $value);
-
     } else if ($name === 'tags') {
         $query = <<<SQL
-    SELECT Tag.name as label, COUNT(*) as count
+    SELECT 
+        Tag.name as labelText, 
+        COUNT(*) as labelCount
     FROM Tag
-    INNER JOIN InternshipTag
-    ON Tag.tag_id = InternshipTag.tag_id
     WHERE Tag.name LIKE ?
     GROUP BY Tag.name
     ORDER BY Tag.name
@@ -42,10 +40,10 @@ SQL;
         $stmt->bind_param('s', $value);
     } else if ($name === 'positions') {
         $query = <<<SQL
-    SELECT Position.name as label, COUNT(*) as count
+    SELECT
+        Position.name as labelText, 
+        COUNT(*) as labelCount
     FROM Position
-    INNER JOIN Internship
-    ON Position.position_id = Internship.position_id
     WHERE Position.name LIKE ?
     GROUP BY Position.name
     ORDER BY Position.name
@@ -55,10 +53,10 @@ SQL;
         $stmt->bind_param('s', $value);
     } else if ($name === 'domains') {
         $query = <<<SQL
-    SELECT Domain.name as label, COUNT(*) as count
+    SELECT
+        Domain.name as labelText,
+        COUNT(*) as labelCount
     FROM Domain
-    INNER JOIN Internship
-    ON Domain.domain_id = Internship.domain_id
     WHERE Domain.name LIKE ?
     GROUP BY Domain.name
     ORDER BY Domain.name
@@ -68,10 +66,10 @@ SQL;
         $stmt->bind_param('s', $value);
     } else if ($name === 'orgs') {
         $query = <<<SQL
-    SELECT Organization.name as label, COUNT(*) as count
+    SELECT
+        Organization.name as labelText, 
+        COUNT(*) as labelCount
     FROM Organization
-    INNER JOIN Internship
-    ON Organization.organization_id = Internship.organization_id
     WHERE Organization.name LIKE ?
     GROUP BY Organization.name
     ORDER BY Organization.name
@@ -97,7 +95,15 @@ SQL;
         ];
     }
     return [
-        'data' => $data,
-        'error' => null
+        'data' => array_map(function ($item) {
+            return [
+                'value' => $item['labelText'],
+                'label' => [
+                    'text' => $item['labelText'],
+                    'count' => $item['labelCount']
+                ],
+            ];
+        }, $data),
+        'error' => null,
     ];
 }

@@ -1,10 +1,9 @@
 <?php
 
-session_start();
-
-require_once($_SERVER['DOCUMENT_ROOT'] . '/../helpers/render.php');
-require_once($_SERVER['DOCUMENT_ROOT'] . '/../models/internship.php');
-require_once($_SERVER['DOCUMENT_ROOT'] . '/../models/user.php');
+require_once getenv('APP_CONFIG_DIR') . '/app.php';
+require_once getenv('APP_HELPERS_DIR') . '/render.php';
+require_once getenv('APP_MODELS_DIR') . '/internship.php';
+require_once getenv('APP_MODELS_DIR') . '/user.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     if (!isset($_GET['id'])) {
