@@ -1,0 +1,11 @@
+In the apache httpd.conf file, add these to the end:
+
+# custom environment variables
+SetEnv APP_NAME Internget
+SetEnv APP_DIR /path/to/internget
+SetEnv APP_CONFIG_DIR /path/to/internget/config
+SetEnv APP_MODELS_DIR /path/to/internget/models
+SetEnv APP_HELPERS_DIR /path/to/internget/helpers
+SetEnv APP_VIEWS_DIR /path/to/internget/views
+SetEnv APP_VIEW_PARTIALS_DIR /path/to/internget/views/partials
+SetEnv APP_VIEW_LAYOUTS_DIR /path/to/internget/views/layouts

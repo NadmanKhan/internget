@@ -5,12 +5,16 @@ require_once getenv('APP_CONFIG_DIR') . '/app.php';
 function search_internships($vars)
 {
     global $mysqli;
+    var_dump($vars);
 
     extract($vars);
 
     $query = <<<SQL
     SELECT
         i.internship_id as internship_id,
+        o.name as org_name,
+        o.email as org_email,
+        o.logo_path as org_logo_path,
         CONCAT(l.city, ', ', l.country) as location,
         i.workplace_mode as workplace_mode,
         p.name as position,
@@ -20,29 +24,34 @@ function search_internships($vars)
         i.qualifications as qualifications,
         i.responsibilities as responsibilities,
         i.application_process as application_process,
-        i.contact_details as contact_details
+        i.contact_details as contact_details,
         i.start_date as start_date,
         i.duration as duration,
         i.schedule as schedule,
         i.hourly_pay as hourly_pay,
         i.has_bonus as has_bonus,
         i.hours_per_week as hours_per_week,
-        i.days_per_week as days_per_week
+        i.days_per_week as days_per_week,
+        i.is_open as is_open
     FROM
         Internship i
+    INNER JOIN 
+        Organization o ON i.organization_id = o.organization_id
     INNER JOIN
         Position p ON i.position_id = p.position_id
     INNER JOIN
-        InternshipDomain i_d ON i.internship_id = i_d.internship_id
-    INNER JOIN
-        Domain d ON i_d.domain_id = d.domain_id
-    INNER JOIN
-        InternshipTag i_t ON i.internship_id = i_t.internship_id
-    INNER JOIN
-        Tag t ON i_t.tag_id = t.tag_id
-    INNER JOIN
         Location l ON i.location_id = l.location_id
+    LEFT JOIN
+        InternshipDomain i_d ON i.internship_id = i_d.internship_id
+    LEFT JOIN
+        Domain d ON i_d.domain_id = d.domain_id
+    LEFT JOIN
+        InternshipTag i_t ON i.internship_id = i_t.internship_id
+    LEFT JOIN
+        Tag t ON i_t.tag_id = t.tag_id
 SQL;
+
+    echo $query;
 
     $where_clauses = [];
     $types = '';
@@ -88,25 +97,25 @@ SQL;
         $params = array_merge($params, $schedules);
     }
 
-    if ($location_id) {
+    if (is_int($location_id)) {
         $where_clauses[] = 'i.location_id = ?';
         $types .= 'i';
         $params[] = $location_id;
     }
 
-    if ($min_hourly_pay) {
+    if (is_float($min_pay)) {
         $where_clauses[] = 'i.hourly_pay >= ?';
         $types .= 'd';
-        $params[] = $min_hourly_pay;
+        $params[] = $min_pay;
     }
 
-    if ($min_duration) {
+    if (is_int($min_duration)) {
         $where_clauses[] = 'i.duration >= ?';
         $types .= 'i';
         $params[] = $min_duration;
     }
 
-    if ($max_duration) {
+    if (is_int($max_duration)) {
         $where_clauses[] = 'i.duration <= ?';
         $types .= 'i';
         $params[] = $max_duration;
@@ -118,43 +127,49 @@ SQL;
         $params[] = $min_start_date;
     }
 
-    if ($max_start_date) {
+    if (is_int($max_start_date)) {
         $where_clauses[] = 'i.start_date <= ?';
         $types .= 's';
         $params[] = $max_start_date;
     }
 
-    if ($min_hours_per_week) {
+    if (is_int($min_hours_per_week)) {
         $where_clauses[] = 'i.hours_per_week >= ?';
         $types .= 'i';
         $params[] = $min_hours_per_week;
     }
 
-    if ($max_hours_per_week) {
+    if (is_int($max_hours_per_week)) {
         $where_clauses[] = 'i.hours_per_week <= ?';
         $types .= 'i';
         $params[] = $max_hours_per_week;
     }
 
-    if ($min_days_per_week) {
+    if (is_int($min_days_per_week)) {
         $where_clauses[] = 'i.days_per_week >= ?';
         $types .= 'i';
         $params[] = $min_days_per_week;
     }
 
-    if ($max_days_per_week) {
+    if (is_int($max_days_per_week)) {
         $where_clauses[] = 'i.days_per_week <= ?';
         $types .= 'i';
         $params[] = $max_days_per_week;
     }
 
-    if ($has_bonus) {
+    if (is_int($has_bonus)) {
         $where_clauses[] = 'i.has_bonus = ?';
         $types .= 'i';
         $params[] = $has_bonus;
     }
 
-    $query .= ' WHERE ' . implode(' AND ', $where_clauses);
+    $where = '';
+    if (count($where_clauses) > 0) {
+        $where = ' WHERE ' . implode(' AND ', $where_clauses);
+    }
+
+    $query .= $where;
+    echo($query);
     $stmt = $mysqli->prepare($query);
     $stmt->bind_param($types, ...$params);
     $stmt->execute();

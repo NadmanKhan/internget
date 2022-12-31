@@ -33,6 +33,7 @@ if (isset($_GET['search'])) {
     // if normal search
     else {
         extract($_GET);
+    echo 'here';
 
         // compact into an assoc array
         $vars = compact(
@@ -54,11 +55,13 @@ if (isset($_GET['search'])) {
             'hours_per_week_max',
         );
 
+        var_dump($vars);
+
         $internships = search_internships($vars);
+
+        var_dump($internships);
     }
 }
-
-
 
 echo render('internship-search-view', [
     'page' => [
